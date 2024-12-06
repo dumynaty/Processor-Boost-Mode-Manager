@@ -1,0 +1,6 @@
+﻿<Application x:Class="Processor_Boost_Mode_Manager.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:Processor_Boost_Mode_Manager"
+             ShutdownMode="OnMainWindowClose">
+</Application>
