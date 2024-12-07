@@ -164,6 +164,7 @@ namespace ProcessBoostModeManager
                 if (clickedItem != null && clickedItem.IsSelected)
                 {
                     ProcessListBox.SelectedItem = null;
+                    UpdateUI();
                     e.Handled = true;
                 }
             }
@@ -187,15 +188,9 @@ namespace ProcessBoostModeManager
 
         private void Window_StateChanged(object sender, EventArgs e)
         {
-            if (WindowState == WindowState.Normal)
-            {
-                App.trayIcon.Visible = false;
-            }
-
             if (WindowState == WindowState.Minimized)
             {
                 Hide();
-                App.trayIcon.Visible = true;
             }
         }
     }

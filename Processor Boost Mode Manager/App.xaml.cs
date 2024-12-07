@@ -1,6 +1,9 @@
 ﻿using ProcessBoostModeManager;
 using System.Diagnostics;
+using System.IO;
+using System.Reflection;
 using System.Windows;
+using System.Windows.Shapes;
 using MessageBox = System.Windows.MessageBox;
 
 namespace Processor_Boost_Mode_Manager
@@ -17,35 +20,33 @@ namespace Processor_Boost_Mode_Manager
 
             MainWindow mainWindow = new();
             if (mainWindow.AutostartCheckBox.IsChecked == true)
-            {
-                trayIcon.Visible = true;
                 mainWindow.Hide();
-            }
             else
-            {
-                trayIcon.Visible = false;
                 mainWindow.Show();
-            }
+
+            TrayIconInitialization();
+        }
+
+        private void TrayIconInitialization()
+        {
+            var appIcon = Assembly.GetExecutingAssembly().GetManifestResourceStream("Processor_Boost_Mode_Manager.Icons.Processor Boost Mode Manager.ico");
+            if (appIcon != null)
+                trayIcon.Icon = new Icon(appIcon);
+            trayIcon.ContextMenuStrip = new ContextMenuStrip();
+            var openIcon = Assembly.GetExecutingAssembly().GetManifestResourceStream("Processor_Boost_Mode_Manager.Icons.Processor Boost Mode Manager.ico");
+            if (openIcon != null)
+                trayIcon.ContextMenuStrip.Items.Add("Open", new Icon(openIcon).ToBitmap(), OnOpenIconClicked);
+            var openFileLocationIcon = Assembly.GetExecutingAssembly().GetManifestResourceStream("Processor_Boost_Mode_Manager.Icons.File.ico");
+            if (openFileLocationIcon != null)
+                trayIcon.ContextMenuStrip.Items.Add("Open file location", new Icon(openFileLocationIcon).ToBitmap(), OnOpenFileLocationIconClicked);
+            var exitIcon = Assembly.GetExecutingAssembly().GetManifestResourceStream("Processor_Boost_Mode_Manager.Icons.Shutdown.ico");
+            if (exitIcon != null)
+                trayIcon.ContextMenuStrip.Items.Add("Close", new Icon(exitIcon).ToBitmap(), OnExitIconClicked);
 
             trayIcon.Text = "Processor Boost Mode Manager";
-            trayIcon.Icon = new Icon("C:\\Users\\Windows G\\source\\repos\\-- ICON --\\Processor Boost Mode Manager.ico");
+            trayIcon.Visible = true;
             trayIcon.MouseClick += TrayIcon_MouseClick;
         }
-
-        private void TrayIcon_MouseClick(object? sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                MainWindow.Show();
-                MainWindow.WindowState = WindowState.Normal;
-                MainWindow.Activate();
-            }
-            if (e.Button == MouseButtons.Right)
-            {
-                App.Current.Shutdown();
-            }
-        }
-
         private static void InstanceCheck()
         {
             string currentProcessName = Process.GetCurrentProcess().ProcessName;
@@ -60,6 +61,39 @@ namespace Processor_Boost_Mode_Manager
 
                 App.Current.Shutdown();
             }
+        }
+        private void TrayIcon_MouseClick(object? sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                MainWindow.Show();
+                MainWindow.WindowState = WindowState.Normal;
+                MainWindow.Activate();
+            }
+        }
+        private void OnOpenIconClicked(object? sender, EventArgs e)
+        {
+            MainWindow.Show();
+            MainWindow.WindowState = WindowState.Normal;
+            MainWindow.Activate();
+        }
+        private void OnOpenFileLocationIconClicked(object? sender, EventArgs e)
+        {
+            string? programPath = Environment.ProcessPath;
+            if (programPath != null)
+            {
+                programPath = programPath.Replace("Processor Boost Mode Manager.exe", "");
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = programPath,
+                    UseShellExecute = true,
+                    Verb = "open"
+                });
+            }
+        }
+        private void OnExitIconClicked(object? sender, EventArgs e)
+        {
+            App.Current.Shutdown();
         }
 
         protected override void OnExit(ExitEventArgs e)

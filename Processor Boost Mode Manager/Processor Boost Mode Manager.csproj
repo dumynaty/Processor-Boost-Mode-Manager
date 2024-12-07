@@ -11,11 +11,9 @@
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
-		<ApplicationIcon>Processor Boost Mode Manager.ico</ApplicationIcon>
+		<ApplicationIcon>Icons\Processor Boost Mode Manager.ico</ApplicationIcon>
 	</PropertyGroup>
-	<ItemGroup>
-	  <Content Include="Processor Boost Mode Manager.ico" />
-	</ItemGroup>
+	
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Win32.SystemEvents" Version="8.0.0" />
@@ -24,7 +22,19 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Properties\PublishProfiles\" />
+		<Folder Include="Properties\PublishProfiles\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="Icons\Processor Boost Mode Manager.ico">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Icons\File.ico">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Icons\Shutdown.ico">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
 	</ItemGroup>
 
 	<ItemGroup>
