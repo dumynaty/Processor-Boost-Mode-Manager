@@ -25,12 +25,12 @@ namespace ProcessBoostModeManager
 
                 if (key == null) // if Path does not exist / not given acess (not to be confused with value)
                 {
-                    MessageBox.Show("Failed to access registry key. Ensure proper permissions!");
+                    MessageBox.Show("Failed to access registry key (@\"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run). Ensure proper permissions!");
                     return;
                 }
                 if (keyApprovedTM == null)
                 {
-                    MessageBox.Show("Failed to access registry key (SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run\\-APPNAME-). Ensure proper permissions!");
+                    MessageBox.Show("Failed to access registry key (@SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run\\-APPNAME-). Ensure proper permissions!");
                     return;
                 }
 

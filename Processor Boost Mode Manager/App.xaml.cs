@@ -23,6 +23,7 @@ namespace Processor_Boost_Mode_Manager
                 mainWindow.Hide();
             else
                 mainWindow.Show();
+            GUIDHandling.InitialSetup();
 
             TrayIconInitialization();
         }
@@ -69,6 +70,10 @@ namespace Processor_Boost_Mode_Manager
                 MainWindow.Show();
                 MainWindow.WindowState = WindowState.Normal;
                 MainWindow.Activate();
+            }
+            if (e.Button == MouseButtons.Middle)
+            {
+                App.Current?.Shutdown();
             }
         }
         private void OnOpenIconClicked(object? sender, EventArgs e)

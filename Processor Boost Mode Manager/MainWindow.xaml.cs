@@ -49,7 +49,7 @@ namespace ProcessBoostModeManager
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
             startupManager.RegisterStartup();
-            TextBoxHandling.Upper("Application is registered to stat with Windows!");
+            TextBoxHandling.Upper("Application is registered to start with Windows!");
         } 
         private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
@@ -96,7 +96,7 @@ namespace ProcessBoostModeManager
             {
                 if (ProcessListBox.SelectedItem == null)
                 {
-                    TextBoxHandling.Lower($"Current mode: {GUIDHandling.GetCurrentProcessorBoostMode()}", true, true);
+                    TextBoxHandling.Lower($"Current mode: {GUIDHandling.GetWindowsProcessorBoostMode()}", true, true);
                 }
 
                 for (int i = 0; i < ProgramsInDatabase.Count; i++)
