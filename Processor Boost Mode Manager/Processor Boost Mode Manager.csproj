@@ -2,16 +2,16 @@
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net8.0-windows</TargetFramework>
-		<RootNamespace>Processor_Boost_Mode_Manager</RootNamespace>
 		<LangVersion>11.0</LangVersion>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<UseWPF>true</UseWPF>
+		<UseWPF>True</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
 		<ApplicationIcon>Icons\Processor Boost Mode Manager.ico</ApplicationIcon>
+		<RootNamespace>ProcessorBoostModeManager</RootNamespace>
 	</PropertyGroup>
 	
 
@@ -38,8 +38,20 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Properties\Settings.Designer.cs">
+	    <DesignTimeSharedInput>True</DesignTimeSharedInput>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>Settings.settings</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <None Update="Application Icon Attribution.txt">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Properties\Settings.settings">
+	    <Generator>SettingsSingleFileGenerator</Generator>
+	    <LastGenOutput>Settings.Designer.cs</LastGenOutput>
 	  </None>
 	</ItemGroup>
 </Project>

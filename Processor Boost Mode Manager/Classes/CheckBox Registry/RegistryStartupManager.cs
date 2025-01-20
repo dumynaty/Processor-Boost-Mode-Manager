@@ -1,7 +1,7 @@
 ﻿using Microsoft.Win32;
 using System.Reflection;
 
-namespace ProcessBoostModeManager
+namespace ProcessorBoostModeManager
 {
     public class RegistryStartupManager
     {

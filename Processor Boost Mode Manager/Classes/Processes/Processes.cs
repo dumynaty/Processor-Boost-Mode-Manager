@@ -6,7 +6,7 @@ using System.Windows.Media.Imaging;
 using System.Windows;
 using MessageBox = System.Windows.MessageBox;
 
-namespace ProcessBoostModeManager
+namespace ProcessorBoostModeManager
 {
     public class Processes
     {

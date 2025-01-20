@@ -1,6 +1,6 @@
 ﻿using System.Windows.Threading;
 
-namespace ProcessBoostModeManager
+namespace ProcessorBoostModeManager
 {
     public static class TextBoxHandling
     {
@@ -30,7 +30,7 @@ namespace ProcessBoostModeManager
                     };
                     timerUpper.Start();
                 }
-                else 
+                else
                 {
                     timerUpper.Stop();
                     permanentUpperMessage = message;

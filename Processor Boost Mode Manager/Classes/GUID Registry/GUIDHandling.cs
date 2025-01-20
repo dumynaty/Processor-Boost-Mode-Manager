@@ -1,7 +1,8 @@
 ﻿using Microsoft.Win32;
 using System.Diagnostics;
+using System.Windows.Forms;
 
-namespace ProcessBoostModeManager
+namespace ProcessorBoostModeManager
 {
     public class GUIDHandling
     {
@@ -9,7 +10,7 @@ namespace ProcessBoostModeManager
         private readonly static string PROCESSOR_SUBGROUP_GUID = "54533251-82be-4824-96c1-47b60b740d00";
         private readonly static string PROCESSOR_BOOST_MODE_GUID = "be337238-0d82-4146-a960-4f3749d470c7";
         private static string? CurrentGUID;
-        static RegistryKey? rk = null;
+        static RegistryKey? rk;
 
         public static void GetCurrentGUID()
         {
@@ -84,7 +85,7 @@ namespace ProcessBoostModeManager
         public static int CheckIfSameCurrentProcessorValue()
         {
             string GUIDProcessorBoostModePath = PowerPlanLocation + CurrentGUID +"\\" + PROCESSOR_SUBGROUP_GUID + "\\" + PROCESSOR_BOOST_MODE_GUID;
-            int boostMode = stringToIntBoostModeValue(Processes.highestBoostModeValue);
+            int boostMode = StringToIntBoostModeValue(Processes.highestBoostModeValue);
 
             using (rk = Registry.LocalMachine.OpenSubKey(GUIDProcessorBoostModePath, false))
             {
@@ -133,11 +134,11 @@ namespace ProcessBoostModeManager
                     MessageBox.Show("Could not access current processes boost mode! Check app permissions!");
             }
 
-            string highestValue = intToStringBoostModeValue(highestValueAsInt);
+            string highestValue = IntToStringBoostModeValue(highestValueAsInt);
             return highestValue;
         }
 
-        public static int stringToIntBoostModeValue(string highestValueAsString)
+        public static int StringToIntBoostModeValue(string highestValueAsString)
         {
                 int highestValueAsInt = highestValueAsString switch
                 {
@@ -152,7 +153,7 @@ namespace ProcessBoostModeManager
                 };
             return highestValueAsInt;
         }
-        public static string intToStringBoostModeValue(int highestValueAsInt)
+        public static string IntToStringBoostModeValue(int highestValueAsInt)
         {
             string highestValueAsString = highestValueAsInt switch
             {

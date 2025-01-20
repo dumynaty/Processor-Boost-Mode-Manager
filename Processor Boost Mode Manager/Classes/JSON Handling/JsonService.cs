@@ -2,7 +2,7 @@
 using System.Text.Json;
 
 
-namespace ProcessBoostModeManager
+namespace ProcessorBoostModeManager
 {
     public class JsonService
     {

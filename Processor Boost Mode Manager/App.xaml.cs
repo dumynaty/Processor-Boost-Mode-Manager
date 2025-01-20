@@ -1,12 +1,11 @@
-﻿using ProcessBoostModeManager;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Shapes;
 using MessageBox = System.Windows.MessageBox;
 
-namespace Processor_Boost_Mode_Manager
+namespace ProcessorBoostModeManager
 {
     public partial class App : System.Windows.Application
     {
@@ -30,17 +29,17 @@ namespace Processor_Boost_Mode_Manager
 
         private void TrayIconInitialization()
         {
-            var appIcon = Assembly.GetExecutingAssembly().GetManifestResourceStream("Processor_Boost_Mode_Manager.Icons.Processor Boost Mode Manager.ico");
+            var appIcon = Assembly.GetExecutingAssembly().GetManifestResourceStream("ProcessorBoostModeManager.Icons.Processor Boost Mode Manager.ico");
             if (appIcon != null)
                 trayIcon.Icon = new Icon(appIcon);
             trayIcon.ContextMenuStrip = new ContextMenuStrip();
-            var openIcon = Assembly.GetExecutingAssembly().GetManifestResourceStream("Processor_Boost_Mode_Manager.Icons.Processor Boost Mode Manager.ico");
+            var openIcon = Assembly.GetExecutingAssembly().GetManifestResourceStream("ProcessorBoostModeManager.Icons.Processor Boost Mode Manager.ico");
             if (openIcon != null)
                 trayIcon.ContextMenuStrip.Items.Add("Open", new Icon(openIcon).ToBitmap(), OnOpenIconClicked);
-            var openFileLocationIcon = Assembly.GetExecutingAssembly().GetManifestResourceStream("Processor_Boost_Mode_Manager.Icons.File.ico");
+            var openFileLocationIcon = Assembly.GetExecutingAssembly().GetManifestResourceStream("ProcessorBoostModeManager.Icons.File.ico");
             if (openFileLocationIcon != null)
                 trayIcon.ContextMenuStrip.Items.Add("Open file location", new Icon(openFileLocationIcon).ToBitmap(), OnOpenFileLocationIconClicked);
-            var exitIcon = Assembly.GetExecutingAssembly().GetManifestResourceStream("Processor_Boost_Mode_Manager.Icons.Shutdown.ico");
+            var exitIcon = Assembly.GetExecutingAssembly().GetManifestResourceStream("ProcessorBoostModeManager.Icons.Shutdown.ico");
             if (exitIcon != null)
                 trayIcon.ContextMenuStrip.Items.Add("Close", new Icon(exitIcon).ToBitmap(), OnExitIconClicked);
 

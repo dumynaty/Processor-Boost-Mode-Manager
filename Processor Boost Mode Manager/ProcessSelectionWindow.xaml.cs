@@ -1,9 +1,9 @@
-﻿using ProcessBoostModeManager;
+﻿using ProcessorBoostModeManager;
 using System.Diagnostics;
 using System.Windows;
 using MessageBox = System.Windows.MessageBox;
 
-namespace Processor_Boost_Mode_Manager
+namespace ProcessorBoostModeManager
 {
     public partial class ProcessSelectionWindow : Window
     {

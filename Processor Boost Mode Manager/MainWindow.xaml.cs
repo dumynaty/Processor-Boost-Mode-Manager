@@ -1,4 +1,12 @@
-﻿using Processor_Boost_Mode_Manager;
+﻿// NEED TO ADD
+//
+// ProcessSelectionWindow Icon
+// ProcessSelectionWindow Clean list
+// MainWindow RightClick property with ContextMenu
+// Logging file
+// Database backup and recovery
+
+
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -7,7 +15,7 @@ using System.Windows.Threading;
 using MessageBox = System.Windows.MessageBox;
 using ComboBox = System.Windows.Controls.ComboBox;
 
-namespace ProcessBoostModeManager
+namespace ProcessorBoostModeManager
 {
     public partial class MainWindow : Window
     {
@@ -25,9 +33,10 @@ namespace ProcessBoostModeManager
             JsonService.MainWindowInstance = this;
             TextBoxHandling.MainWindowInstance = this;
 
-            // Initialize checkbox
+            // Initialize checkboxes
             startupManager = new RegistryStartupManager();
             AutostartCheckBox.IsChecked = startupManager.IsAutostartEnabled();
+            WindowsNotificationCheckBox.IsChecked = Properties.Settings.Default.WindowsNotificationEnabled;
 
             // Prepare the active GUID Value
             GUIDHandling.GetCurrentGUID();
@@ -44,21 +53,32 @@ namespace ProcessBoostModeManager
             timer.Start();
         }
 
-
-        // CheckBoxes Methods
-        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        //CheckBoxes Methods
+        private void AutostartCheckBox_Checked(object sender, RoutedEventArgs e)
         {
             startupManager.RegisterStartup();
             TextBoxHandling.Upper("Application is registered to start with Windows!");
-        } 
-        private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
+        }
+        private void AutostartCheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
             startupManager.UnregisterStartup();
             TextBoxHandling.Upper("Application is unregistered from starting with Windows!");
         }
+        private void WindowsNotificationCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.WindowsNotificationEnabled = true;
+            Properties.Settings.Default.Save();
+            TextBoxHandling.Upper("Application will notify changes with Windows Baloon Pop-up!");
+        }
+        private void WindowsNotificationCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.WindowsNotificationEnabled = false;
+            Properties.Settings.Default.Save();
+            TextBoxHandling.Upper("Application will not notify changes with Windows Baloon Pop-up!");
+        }
 
         // Event actions for the buttons
-        public void AddButton_Click(object sender, RoutedEventArgs e)
+        private void AddButton_Click(object sender, RoutedEventArgs e)
         {
             ProcessSelectionWindow selection = new();
             selection.Show();
@@ -76,7 +96,7 @@ namespace ProcessBoostModeManager
         }
 
         // Refresh UI
-        public void UpdateUI()
+        private void UpdateUI()
         {
             bool differentList = false;
             var currentBoostModeHighestValue = Processes.highestBoostModeValue;
@@ -122,6 +142,7 @@ namespace ProcessBoostModeManager
                 try
                 {
                     GUIDHandling.SetGUID();
+                    if (WindowsNotificationCheckBox.IsChecked == true)
                     App.trayIcon.ShowBalloonTip(2500, "Status change:", $"Current mode set to: " +
                         $"{Processes.highestBoostModeValue}", ToolTipIcon.None);
                 }
@@ -185,6 +206,7 @@ namespace ProcessBoostModeManager
                 comboBoxIsSelectedByUser = false;
             }
         }
+        
 
         private void Window_StateChanged(object sender, EventArgs e)
         {

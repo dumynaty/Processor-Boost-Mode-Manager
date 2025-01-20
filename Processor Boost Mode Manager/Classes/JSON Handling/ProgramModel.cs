@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 using System.Windows.Media.Imaging;
 
-namespace ProcessBoostModeManager
+namespace ProcessorBoostModeManager
 {
     public class ProgramModel : INotifyPropertyChanged
     {
