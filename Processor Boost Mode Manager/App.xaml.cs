@@ -59,6 +59,7 @@ namespace ProcessorBoostModeManager
                                 MessageBoxButton.OK,
                                 MessageBoxImage.Information);
 
+                // This doesn't shutdown
                 App.Current.Shutdown();
             }
         }
@@ -85,15 +86,7 @@ namespace ProcessorBoostModeManager
         {
             string? programPath = Environment.ProcessPath;
             if (programPath != null)
-            {
-                programPath = programPath.Replace("Processor Boost Mode Manager.exe", "");
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = programPath,
-                    UseShellExecute = true,
-                    Verb = "open"
-                });
-            }
+                FileExplorer.ShowFileInExplorer(programPath);
         }
         private void OnExitIconClicked(object? sender, EventArgs e)
         {

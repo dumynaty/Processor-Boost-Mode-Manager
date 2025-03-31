@@ -1,10 +1,19 @@
-﻿// NEED TO ADD
+﻿// Structure:
+// Get list of currently running programs
+// Check if the programs from database are running
+// Update the list order and visuals
+
+// NEED TO ADD
 //
-// ProcessSelectionWindow Icon
-// ProcessSelectionWindow Clean list
-// MainWindow RightClick property with ContextMenu
+// ProcessSelectionWindow Icon -- COMPLETE --
+// ProcessSelectionWindow Clean list -- COMPLETE --
+// MainWindow RightClick property with ContextMenu -- COMPLETE --
+// Refresh BoostMode after Removing program
 // Logging file
 // Database backup and recovery
+// Startup Arguments
+// File Extra Exit
+// ComboBox options selection, Dark theme
 
 
 using System.Collections.ObjectModel;
@@ -20,7 +29,7 @@ namespace ProcessorBoostModeManager
     public partial class MainWindow : Window
     {
         private readonly RegistryStartupManager startupManager;
-        public ObservableCollection<ProgramModel> ProgramsInUI= new();
+        public ObservableCollection<ProgramModel> ProgramsInUI { get; set; } = new();
         private readonly DispatcherTimer timer = new();
 
         public MainWindow()
@@ -42,7 +51,7 @@ namespace ProcessorBoostModeManager
             GUIDHandling.GetCurrentGUID();
 
             // Display Database programs on Window ListBox
-            ProcessListBox.ItemsSource = ProgramsInUI;
+            DataContext = this;
             UpdateUI();
 
             timer.Interval = TimeSpan.FromSeconds(1);
@@ -53,7 +62,7 @@ namespace ProcessorBoostModeManager
             timer.Start();
         }
 
-        //CheckBoxes Methods
+        // CheckBoxes Methods
         private void AutostartCheckBox_Checked(object sender, RoutedEventArgs e)
         {
             startupManager.RegisterStartup();
@@ -167,7 +176,8 @@ namespace ProcessorBoostModeManager
         }
         private void ProcessListBox_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            // If clicked on the ComboBox while a selection is made
+            // Run order: ComboBox check, Deselection.
+            // Be able to open the ComboBox when the ListBox Item is selected
             var originalSource = e.OriginalSource as DependencyObject;
             while (originalSource != null)
             {
@@ -178,35 +188,76 @@ namespace ProcessorBoostModeManager
                 originalSource = VisualTreeHelper.GetParent(originalSource);
             }
 
-            // Unselect program from the list if clicked twice
+            // Deselect ListBox Item if the Left Button is pressed outside or on the same Item
             if (ProcessListBox.SelectedItem != null)
             {
                 var clickedItem = ProcessListBox.ContainerFromElement((DependencyObject)e.OriginalSource) as ListBoxItem;
-                if (clickedItem != null && clickedItem.IsSelected)
+                if (clickedItem == null || clickedItem.IsSelected)
                 {
                     ProcessListBox.SelectedItem = null;
-                    UpdateUI();
                     e.Handled = true;
                 }
             }
         }
-
-        public bool comboBoxIsSelectedByUser = false; 
-        private void ProcessListBox_ComboBoxPreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void ProcessListBox_PreviewMouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            comboBoxIsSelectedByUser = true;
+            // Deselect ListBox Item if the Right Button is pressed outside an Item
+            var clickedItem = ProcessListBox.ContainerFromElement((DependencyObject)e.OriginalSource) as ListBoxItem;
+            if (clickedItem == null)
+            {
+                ProcessListBox.SelectedItem = null;
+                e.Handled = true;
+            }
         }
+
+
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (comboBoxIsSelectedByUser)
+            // Make changes to the ComboBox only when it was clicked by mouse.
+            // If not, the ComboBox will trigger infinite ChangedEvent loop
+            var comboBox = sender as ComboBox;
+            if (comboBox != null && comboBox.IsMouseOver)
             {
                 JsonService.SavePrograms(ProgramsInUI.ToList());
                 ProgramsInUI.Clear();
                 UpdateUI();
-                comboBoxIsSelectedByUser = false;
             }
         }
-        
+        private void ComboBoxProcess_DropDownClosed(object sender, EventArgs e)
+        {
+            if (System.Windows.Input.Mouse.DirectlyOver is ComboBox comboBox)
+            {
+                comboBox.IsDropDownOpen = true;
+            }
+        }
+
+        private void ProcessListBox_ContextMenuOpening(object sender, RoutedEventArgs e)
+        {
+            // Don't open context menu if right clicked on the ComboBox
+            var originalSource = e.OriginalSource as DependencyObject;
+            while (originalSource != null)
+            {
+                if (originalSource is ComboBox || ProcessListBox.SelectedItem is not ProgramModel selectedProcess)
+                {
+                    e.Handled = true;
+                    return;
+                }
+                originalSource = VisualTreeHelper.GetParent(originalSource);
+            }
+        }
+        private void OpenFileLocationProperty_Click(object sender, RoutedEventArgs e)
+        {
+            if (ProcessListBox.SelectedItem is ProgramModel selectedProcess)
+            {
+                string? programPath = selectedProcess.Location;
+                FileExplorer.ShowFileInExplorer(programPath);
+                // Simpler but opens a new explorer.exe process every time it is called
+                // System.Diagnostics.Process.Start("explorer.exe", $"/select, \"{ programPath }\"");
+                ProcessListBox.SelectedItem = null;
+                e.Handled = true;
+            }
+        }
+
 
         private void Window_StateChanged(object sender, EventArgs e)
         {
