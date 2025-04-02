@@ -10,7 +10,7 @@
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
-		<ApplicationIcon>Icons\Processor Boost Mode Manager.ico</ApplicationIcon>
+		<ApplicationIcon>Resources\Icons\Processor Boost Mode Manager.ico</ApplicationIcon>
 		<RootNamespace>ProcessorBoostModeManager</RootNamespace>
 	</PropertyGroup>
 	<ItemGroup>
@@ -24,12 +24,13 @@
 	    <EmbedInteropTypes>true</EmbedInteropTypes>
 	  </COMReference>
 	</ItemGroup>
+	<ItemGroup>
+	  <Content Include="Resources\Icons\Processor Boost Mode Manager.ico" />
+	</ItemGroup>
 	
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Win32.SystemEvents" Version="8.0.0" />
 		<PackageReference Include="System.Drawing.Common" Version="8.0.10" />
-		<PackageReference Include="System.Management" Version="8.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -37,15 +38,19 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<EmbeddedResource Include="Icons\Processor Boost Mode Manager.ico">
+		<EmbeddedResource Include="Resources\Icons\Processor Boost Mode Manager.ico">
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>
-		<EmbeddedResource Include="Icons\File.ico">
+		<EmbeddedResource Include="Resources\Icons\File.ico">
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>
-		<EmbeddedResource Include="Icons\Shutdown.ico">
+		<EmbeddedResource Include="Resources\Icons\Shutdown.ico">
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\RegistryManagerLibrary\RegistryManagerLibrary.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

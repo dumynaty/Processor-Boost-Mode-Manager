@@ -3,7 +3,7 @@
 
 using System.Runtime.InteropServices;
 
-namespace ProcessorBoostModeManager
+namespace ProcessorBoostModeManager.Common.shell32
 {
     public static class FileExplorer
     {

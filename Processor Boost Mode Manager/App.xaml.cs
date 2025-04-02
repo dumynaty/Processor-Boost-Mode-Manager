@@ -1,12 +1,14 @@
-﻿using System.Diagnostics;
-using System.IO;
+﻿using ProcessorBoostModeManager.Common.shell32;
+using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.Versioning;
 using System.Windows;
-using System.Windows.Shapes;
+using System.Windows.Controls;
 using MessageBox = System.Windows.MessageBox;
 
 namespace ProcessorBoostModeManager
 {
+    [SupportedOSPlatform("windows")]
     public partial class App : System.Windows.Application
     {
         public readonly static NotifyIcon trayIcon = new();
@@ -22,24 +24,22 @@ namespace ProcessorBoostModeManager
                 mainWindow.Hide();
             else
                 mainWindow.Show();
-            GUIDHandling.InitialSetup();
-
             TrayIconInitialization();
         }
 
         private void TrayIconInitialization()
         {
-            var appIcon = Assembly.GetExecutingAssembly().GetManifestResourceStream("ProcessorBoostModeManager.Icons.Processor Boost Mode Manager.ico");
+            var appIcon = Assembly.GetExecutingAssembly().GetManifestResourceStream("ProcessorBoostModeManager.Resources.Icons.Processor Boost Mode Manager.ico");
             if (appIcon != null)
                 trayIcon.Icon = new Icon(appIcon);
             trayIcon.ContextMenuStrip = new ContextMenuStrip();
-            var openIcon = Assembly.GetExecutingAssembly().GetManifestResourceStream("ProcessorBoostModeManager.Icons.Processor Boost Mode Manager.ico");
+            var openIcon = Assembly.GetExecutingAssembly().GetManifestResourceStream("ProcessorBoostModeManager.Resources.Icons.Processor Boost Mode Manager.ico");
             if (openIcon != null)
                 trayIcon.ContextMenuStrip.Items.Add("Open", new Icon(openIcon).ToBitmap(), OnOpenIconClicked);
-            var openFileLocationIcon = Assembly.GetExecutingAssembly().GetManifestResourceStream("ProcessorBoostModeManager.Icons.File.ico");
+            var openFileLocationIcon = Assembly.GetExecutingAssembly().GetManifestResourceStream("ProcessorBoostModeManager.Resources.Icons.File.ico");
             if (openFileLocationIcon != null)
                 trayIcon.ContextMenuStrip.Items.Add("Open file location", new Icon(openFileLocationIcon).ToBitmap(), OnOpenFileLocationIconClicked);
-            var exitIcon = Assembly.GetExecutingAssembly().GetManifestResourceStream("ProcessorBoostModeManager.Icons.Shutdown.ico");
+            var exitIcon = Assembly.GetExecutingAssembly().GetManifestResourceStream("ProcessorBoostModeManager.Resources.Icons.Shutdown.ico");
             if (exitIcon != null)
                 trayIcon.ContextMenuStrip.Items.Add("Close", new Icon(exitIcon).ToBitmap(), OnExitIconClicked);
 
@@ -63,6 +63,7 @@ namespace ProcessorBoostModeManager
                 App.Current.Shutdown();
             }
         }
+
         private void TrayIcon_MouseClick(object? sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
@@ -96,11 +97,7 @@ namespace ProcessorBoostModeManager
         protected override void OnExit(ExitEventArgs e)
         {
             trayIcon?.Dispose();
-            if (MainWindowInstance != null)
-            {
-                List<ProgramModel> displayedList = MainWindowInstance.ProgramsInUI.ToList();
-                JsonService.SavePrograms(displayedList);
-            }
+            MainWindowInstance?.SavePropertiesSettings();
             base.OnExit(e);
         }
     }

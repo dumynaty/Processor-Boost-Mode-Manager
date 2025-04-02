@@ -1,6 +1,6 @@
 ﻿using System.Windows.Threading;
 
-namespace ProcessorBoostModeManager
+namespace ProcessorBoostModeManager.Common
 {
     public static class TextBoxHandling
     {

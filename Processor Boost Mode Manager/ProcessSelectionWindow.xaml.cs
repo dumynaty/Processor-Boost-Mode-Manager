@@ -1,30 +1,28 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using ProcessorBoostModeManager.Common;
+using ProcessorBoostModeManager.Models;
 using System.Diagnostics;
-using System.Linq;
+using System.Runtime.Versioning;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
-using MessageBox = System.Windows.MessageBox;
 
 namespace ProcessorBoostModeManager
 {
-    
+    [SupportedOSPlatform("windows")]
     public partial class ProcessSelectionWindow : Window
     {
-        public static MainWindow? MainWindowInstance { get; set; }
-        public ObservableCollection<ProcessesModel> ProcessesInUI { get; set; } = new();
+        MainWindow _mainWindow;
+        public List<ProgramModel> ProcessesInUI { get; set; } = new();
 
-        public ProcessSelectionWindow()
+        public ProcessSelectionWindow(MainWindow mainWindow)
         {
             InitializeComponent();
-            App.ProcessSelectionInstance = this;
 
             DataContext = this;
+            _mainWindow = mainWindow;
             LoadProcesses();
         }
 
-        // Load current running processes and display them in the ProcessSelectionWindow List
         private void LoadProcesses()
         {
             var runningProcesses = Process.GetProcesses().Where(p =>
@@ -46,24 +44,22 @@ namespace ProcessorBoostModeManager
                 try
                 {
                     string selectedProcessLocation = process.MainModule?.FileName ?? "Unknown Location";
-                    ProcessesInUI.Add(new ProcessesModel
+                    ProcessesInUI.Add(new ProgramModel
                     {
                         Name = process.ProcessName,
                         Location = selectedProcessLocation,
-                        Icon = ExtractIcon(selectedProcessLocation)
+                        Icon = IconHandler.ExtractIcon(selectedProcessLocation)
                     });
                 }
-                catch (Exception e)
+                catch
                 {
-                    MessageBox.Show($"Error Loading selected process into list. {e.Message}");
+                    return;
                 }
             }
         }
-
-        // Add program from ProcessSelectionWindow List to the Database.json File
         private void ProcessesListBox_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            if (ProcessesListBox.SelectedItem is not ProcessesModel selectedProcess)
+            if (ProcessesListBox.SelectedItem is not ProgramModel selectedProcess)
                 return;
 
             try
@@ -72,43 +68,21 @@ namespace ProcessorBoostModeManager
                 {
                     Name = selectedProcess.Name,
                     Location = selectedProcess.Location,
-                    BoostMode = "Disabled"
+                    Icon = IconHandler.ExtractIcon(selectedProcess.Location)
                 };
-                JsonService.AddToFile(program);
+                Processes.AddProgramToDatabase(program);
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Couldn't add Windows protected process!");
+                throw new Exception($"Couldn't add Windows protected process! {ex.Message}");
             }
             Close();
         }
 
-        public static BitmapSource? ExtractIcon(string programLocation)
+        private void Window_Closed(object sender, EventArgs e)
         {
-            try
-            {
-                using var extractedIcon = System.Drawing.Icon.ExtractAssociatedIcon(programLocation);
-                if (extractedIcon != null)
-                {
-                    var icon = Imaging.CreateBitmapSourceFromHIcon(
-                        extractedIcon.Handle,
-                        Int32Rect.Empty,
-                        BitmapSizeOptions.FromEmptyOptions());
-                    return icon;
-                }
-            }
-            catch (Exception)
-            {
-                MessageBox.Show($"Error getting image from process (system protected / path 'Unknown') + {programLocation}");
-            }
-            return null;
+            _mainWindow.UpdateProgram();
+            _mainWindow.AddButton.IsEnabled = true;
         }
-    }
-
-    public class ProcessesModel
-    {
-        public BitmapSource? Icon { get; set; } = null;
-        public required string Name { get; set; }
-        public required string Location { get; set; }
     }
 }
