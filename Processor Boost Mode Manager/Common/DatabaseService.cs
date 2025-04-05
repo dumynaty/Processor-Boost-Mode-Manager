@@ -1,17 +1,17 @@
 ﻿using ProcessorBoostModeManager.Models;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
+using ProcessorBoostModeManager.ViewModels;
 using System.IO;
+using System.Linq.Expressions;
 using System.Text.Json;
 using System.Windows;
 
 namespace ProcessorBoostModeManager.Common
 {
-    public static class Processes
+    public class DatabaseService
     {
-        public static string FilePath => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Database.json");
+        public string FilePath => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Database.json");
 
-        public static void CreateDatabase()
+        public void CreateDatabase()
         {
             try
             {
@@ -26,7 +26,7 @@ namespace ProcessorBoostModeManager.Common
             }
         }
 
-        public static List<ProgramModel> GetDatabaseProcesses()
+        public List<ProgramModel> GetDatabaseProcesses()
         {
             List<ProgramModel> ProgramsInDatabase = new List<ProgramModel>();
             try
@@ -49,7 +49,7 @@ namespace ProcessorBoostModeManager.Common
             return ProgramsInDatabase;
         }
 
-        public static void AddProgramToDatabase(ProgramModel newProgram)
+        public void AddProgramToDatabase(ProgramModel newProgram)
         {
             var Database = GetDatabaseProcesses();
 
@@ -60,14 +60,14 @@ namespace ProcessorBoostModeManager.Common
             }
         }
 
-        public static void RemoveProgramFromDatabase(ProgramModel program)
+        public void RemoveProgramFromDatabase(ProgramModel program)
         {
             var Database = GetDatabaseProcesses();
             Database.RemoveAll(p => p.Name == program.Name);
             SaveDatabase(Database);
         }
 
-        public static void SaveDatabase(List<ProgramModel> programs)
+        public void SaveDatabase(List<ProgramModel> programs)
         {
             try
             {
@@ -82,45 +82,26 @@ namespace ProcessorBoostModeManager.Common
                 throw new Exception($"Error saving Database {e.Message}");
             }
         }
-
-        public static List<string> GetWindowsProcesses()
+        public void SaveDatabase(List<ProgramViewModel> programsAsList)
         {
-            return Process.GetProcesses().Distinct().Select(p => p.ProcessName).ToList();
-        }
-
-        public static (ObservableCollection<ProgramModel> Database, int HighestBoostMode) GetDatabaseProcessesOC()
-        {
-            var Database = new ObservableCollection<ProgramModel>();
-            var WindowsProcesses = GetWindowsProcesses();
-
-            int HighestBoostMode = 0;
-
-            foreach (var program in GetDatabaseProcesses())
+            List<ProgramModel> programs = new List<ProgramModel>();
+            foreach (var program in programsAsList)
             {
-                if (WindowsProcesses.Contains(program.Name))
-                {
-                    program.IsRunning = true;
-
-                    if ((int)program.BoostMode > HighestBoostMode)
-                        HighestBoostMode = (int)program.BoostMode;
-                }
-
-                program.Icon = IconHandler.ExtractIcon(program.Location);
-
-                Database.Add(program);
+                programs.Add(program.Model);
             }
 
-            foreach (var program in Database)
+            try
             {
-                if ((int)program.BoostMode == HighestBoostMode &&
-                    (int)program.BoostMode != 0 &&
-                    program.IsRunning == true)
+                File.WriteAllText(FilePath, JsonSerializer.Serialize(programs, new JsonSerializerOptions
                 {
-                        program.HighestValue = true;
-                }
+                    WriteIndented = true,
+                    IncludeFields = true,
+                }));
             }
-
-            return (Database, HighestBoostMode);
+            catch (Exception e)
+            {
+                throw new Exception($"Error saving Database {e.Message}");
+            }
         }
     }
 }

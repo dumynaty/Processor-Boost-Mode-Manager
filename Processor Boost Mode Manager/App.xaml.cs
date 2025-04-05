@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Versioning;
 using System.Windows;
-using System.Windows.Controls;
 using MessageBox = System.Windows.MessageBox;
 
 namespace ProcessorBoostModeManager
@@ -11,21 +10,9 @@ namespace ProcessorBoostModeManager
     [SupportedOSPlatform("windows")]
     public partial class App : System.Windows.Application
     {
-        public readonly static NotifyIcon trayIcon = new();
-        public static MainWindow? MainWindowInstance { get; set; }
+        public static MainWindow MainWindowInstance { get; set; } = new();
         public static ProcessSelectionWindow? ProcessSelectionInstance { get; set; }
-        protected override void OnStartup(StartupEventArgs e)
-        {
-            base.OnStartup(e);
-            InstanceCheck();
-
-            MainWindow mainWindow = new();
-            if (mainWindow.AutostartCheckBox.IsChecked == true)
-                mainWindow.Hide();
-            else
-                mainWindow.Show();
-            TrayIconInitialization();
-        }
+        public readonly static NotifyIcon trayIcon = new();
 
         private void TrayIconInitialization()
         {
@@ -94,10 +81,21 @@ namespace ProcessorBoostModeManager
             App.Current.Shutdown();
         }
 
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+            InstanceCheck();
+
+            if (MainWindowInstance._mainViewModel.AutostartWithWindows == true)
+                MainWindowInstance.Hide();
+            else
+                MainWindowInstance.Show();
+            TrayIconInitialization();
+        }
         protected override void OnExit(ExitEventArgs e)
         {
             trayIcon?.Dispose();
-            MainWindowInstance?.SavePropertiesSettings();
+            MainWindowInstance?._mainViewModel.SaveAppSettingsProperties();
             base.OnExit(e);
         }
     }

@@ -26,6 +26,30 @@ namespace ProcessorBoostModeManager.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AutostartWithWindows {
+            get {
+                return ((bool)(this["AutostartWithWindows"]));
+            }
+            set {
+                this["AutostartWithWindows"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool WindowsNotification {
+            get {
+                return ((bool)(this["WindowsNotification"]));
+            }
+            set {
+                this["WindowsNotification"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool MinimizeToTray {
             get {
                 return ((bool)(this["MinimizeToTray"]));
@@ -37,7 +61,7 @@ namespace ProcessorBoostModeManager.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Light")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Classic")]
         public string Theme {
             get {
                 return ((string)(this["Theme"]));
@@ -73,25 +97,13 @@ namespace ProcessorBoostModeManager.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool AutostartWithWindows {
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string BoostModesTest {
             get {
-                return ((bool)(this["AutostartWithWindows"]));
+                return ((string)(this["BoostModesTest"]));
             }
             set {
-                this["AutostartWithWindows"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool WindowsNotificationPopup {
-            get {
-                return ((bool)(this["WindowsNotificationPopup"]));
-            }
-            set {
-                this["WindowsNotificationPopup"] = value;
+                this["BoostModesTest"] = value;
             }
         }
     }

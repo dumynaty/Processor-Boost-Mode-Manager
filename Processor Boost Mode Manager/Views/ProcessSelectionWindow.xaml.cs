@@ -1,5 +1,7 @@
 ﻿using ProcessorBoostModeManager.Common;
 using ProcessorBoostModeManager.Models;
+using ProcessorBoostModeManager.ViewModels;
+using ProcessorBoostModeManager.Views;
 using System.Diagnostics;
 using System.Runtime.Versioning;
 using System.Windows;
@@ -11,15 +13,15 @@ namespace ProcessorBoostModeManager
     [SupportedOSPlatform("windows")]
     public partial class ProcessSelectionWindow : Window
     {
-        MainWindow _mainWindow;
-        public List<ProgramModel> ProcessesInUI { get; set; } = new();
+        MainViewModel _mainViewModel;
+        public List<ProgramViewModel> ProcessesInUI { get; set; } = new();
 
-        public ProcessSelectionWindow(MainWindow mainWindow)
+        public ProcessSelectionWindow(MainViewModel mainViewModel)
         {
             InitializeComponent();
 
             DataContext = this;
-            _mainWindow = mainWindow;
+            _mainViewModel = mainViewModel;
             LoadProcesses();
         }
 
@@ -44,12 +46,11 @@ namespace ProcessorBoostModeManager
                 try
                 {
                     string selectedProcessLocation = process.MainModule?.FileName ?? "Unknown Location";
-                    ProcessesInUI.Add(new ProgramModel
+                    var program = new ProgramViewModel(new ProgramModel { Name = process.ProcessName, Location = selectedProcessLocation })
                     {
-                        Name = process.ProcessName,
-                        Location = selectedProcessLocation,
                         Icon = IconHandler.ExtractIcon(selectedProcessLocation)
-                    });
+                    };
+                    ProcessesInUI.Add(program);
                 }
                 catch
                 {
@@ -59,7 +60,7 @@ namespace ProcessorBoostModeManager
         }
         private void ProcessesListBox_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            if (ProcessesListBox.SelectedItem is not ProgramModel selectedProcess)
+            if (ProcessesListBox.SelectedItem is not ProgramViewModel selectedProcess)
                 return;
 
             try
@@ -67,10 +68,10 @@ namespace ProcessorBoostModeManager
                 var program = new ProgramModel
                 {
                     Name = selectedProcess.Name,
-                    Location = selectedProcess.Location,
-                    Icon = IconHandler.ExtractIcon(selectedProcess.Location)
+                    Location = selectedProcess.Location
                 };
-                Processes.AddProgramToDatabase(program);
+                _mainViewModel.DatabaseJSON.AddProgramToDatabase(program);
+                _mainViewModel.StatusMessageLower = $"Program {program.Name} has been added to the Database!";
             }
             catch (Exception ex)
             {
@@ -81,8 +82,10 @@ namespace ProcessorBoostModeManager
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            _mainWindow.UpdateProgram();
-            _mainWindow.AddButton.IsEnabled = true;
+            _mainViewModel.UpdateProgram();
+            
+            // Handle Button Is Enable status
+            //_mainViewModel.AddButton.IsEnabled = true;
         }
     }
 }

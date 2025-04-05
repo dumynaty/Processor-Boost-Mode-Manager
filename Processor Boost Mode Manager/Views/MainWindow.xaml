@@ -23,11 +23,12 @@
             <MenuItem Header="File">
                 <MenuItem Header="Exit" Click="Exit_Click"/>
             </MenuItem>
-
+            
             <MenuItem Header="Options">
                 <MenuItem x:Name="MinimizeToTrayMenuItem"
                           Header="Minimize to Tray"
                           IsCheckable="True"
+                          IsChecked="{Binding MinimizeToTray}"
                           Click="MinimizeToTray_Click"/>
                 <MenuItem x:Name="ThemeMenuItems"
                           Header="Theme">
@@ -54,7 +55,8 @@
             </MenuItem>
 
             <MenuItem Header="View">
-                <MenuItem Header="Refresh Now" Click="RefreshMenuItem_Click"/>
+                <MenuItem Header="Refresh Now" 
+                          Click="RefreshMenuItem_Click"/>
                 <MenuItem x:Name="UpdateSpeedMenuItems"
                           Header="Update Speed">
                     <MenuItem Header="High (1 second)" IsCheckable="True" Click="UpdateSpeedMenuItem_Click" Tag="1"/>
@@ -83,6 +85,7 @@
                     Margin="0,10,0,10">
 
             <TextBlock Name="UpperMainInfo" 
+                       Text="{Binding StatusMessageUpper}"
                        TextWrapping="Wrap"
                        Height="16"
                        Margin="4,0,4,0">
@@ -99,15 +102,13 @@
                     <CheckBox Content="Autostart with Windows" Height="15" HorizontalAlignment="Left"
                               Margin="10,10,0,0"
                               Grid.Row="0"
-                              Checked="AutostartCheckBox_Checked"
-                              Unchecked="AutostartCheckBox_Unchecked"
-                              x:Name="AutostartCheckBox"/>
+                              IsChecked="{Binding AutostartWithWindows}"
+                              Click="AutostartCheckBox_Click"/>
                     <CheckBox Content="Windows Pop-up Notifications" Height="15" HorizontalAlignment="Left"
                               Margin="10,10,0,0"
                               Grid.Row="1"
-                              Checked="WindowsNotificationCheckBox_Checked"
-                              Unchecked="WindowsNotificationCheckBox_Unchecked"
-                              x:Name="WindowsNotificationCheckBox"/>
+                              IsChecked="{Binding WindowsNotification}"
+                              Click="WindowsNotificationCheckBox_Click"/>
                 </Grid>
             </GroupBox>
 
@@ -136,6 +137,11 @@
                                 Width="80" Height="22" 
                                 Click="RemoveButton_Click" 
                                 HorizontalAlignment="Left"/>
+                        <Button Content="Test" 
+                                Margin="0,4,10,5" 
+                                Width="50" Height="22" 
+                                Click="TestButton_Click" 
+                                HorizontalAlignment="Right"/>
                     </DockPanel>
 
                     <ListBox x:Name="ProcessListBox"
@@ -153,8 +159,8 @@
                         <ListBox.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="Open File Location"
-                                          Click="OpenFileLocationProperty_Click"
-                                          x:Name="OpenFileLocationProperty"/>
+                                          Click="OpenFileLocationMenuItem_Click"
+                                          x:Name="OpenFileLocationMenuItem"/>
                             </ContextMenu>
                         </ListBox.ContextMenu>
                         <ListBox.ItemTemplate>
@@ -199,7 +205,7 @@
                                         </TextBlock.Style>
                                     </TextBlock>
 
-                                    <ComboBox x:Name="ComboBoxProcess"
+                                    <ComboBox x:Name="ComboBoxList"
                                               Width="100"
                                               Grid.Column="2" 
                                               VerticalAlignment="Center" 
@@ -209,14 +215,28 @@
                                               SelectedValue="{Binding BoostMode, Mode=TwoWay}"
                                               SelectedValuePath="Tag"
                                               SelectionChanged="ComboBox_SelectionChanged"
-                                              DropDownClosed="ComboBoxProcess_DropDownClosed">
-                                        <ComboBoxItem Content="Disabled" Tag ="Disabled"/>
-                                        <ComboBoxItem Content="Enabled" Tag ="Enabled"/>
-                                        <ComboBoxItem Content="Aggressive" Tag ="Aggressive"/>
-                                        <ComboBoxItem Content="EfficientEnabled" Tag ="EfficientEnabled"/>
-                                        <ComboBoxItem Content="EfficientAggressive" Tag ="EfficientAggressive"/>
-                                        <ComboBoxItem Content="AggressiveAtGuaranteed" Tag ="AggressiveAtGuaranteed"/>
-                                        <ComboBoxItem Content="EfficientAggressiveAtGuaranteed" Tag ="EfficientAggressiveAtGuaranteed"/>
+                                              DropDownClosed="ComboBox_DropDownClosed">
+                                        <ComboBoxItem Content="Disabled" 
+                                                      Tag ="Disabled" 
+                                                      Visibility="{Binding Disabled, UpdateSourceTrigger=PropertyChanged}"/>
+                                        <ComboBoxItem Content="Enabled" 
+                                                      Tag ="Enabled"
+                                                      Visibility="{Binding Enabled, UpdateSourceTrigger=PropertyChanged}"/>
+                                        <ComboBoxItem Content="Aggressive" 
+                                                      Tag ="Aggressive"
+                                                      Visibility="{Binding Aggressive, UpdateSourceTrigger=PropertyChanged}"/>
+                                        <ComboBoxItem Content="EfficientEnabled" 
+                                                      Tag ="EfficientEnabled"
+                                                      Visibility="{Binding EfficientEnabled, UpdateSourceTrigger=PropertyChanged}"/>
+                                        <ComboBoxItem Content="EfficientAggressive" 
+                                                      Tag ="EfficientAggressive"
+                                                      Visibility="{Binding EfficientAggressive, UpdateSourceTrigger=PropertyChanged}"/>
+                                        <ComboBoxItem Content="AggressiveAtGuaranteed" 
+                                                      Tag ="AggressiveAtGuaranteed"
+                                                      Visibility="{Binding AggressiveAtGuaranteed, UpdateSourceTrigger=PropertyChanged}"/>
+                                        <ComboBoxItem Content="EfficientAggressiveAtGuaranteed" 
+                                                      Tag ="EfficientAggressiveAtGuaranteed"
+                                                      Visibility="{Binding EfficientAggressiveAtGuaranteed, UpdateSourceTrigger=PropertyChanged}"/>
                                     </ComboBox>
                                 </Grid>
                             </DataTemplate>
@@ -227,6 +247,7 @@
             </GroupBox>
 
             <TextBlock Name="LowerMainInfo"
+                       Text="{Binding StatusMessageLower}"
                        Height="16"
                        Margin="4,7.5,4,0"
                        TextWrapping="NoWrap"
@@ -237,3 +258,4 @@
     </Grid>
 
 </Window>
+    
