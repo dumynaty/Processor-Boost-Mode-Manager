@@ -8,12 +8,13 @@
         Title="Select Program" Height="309" Width="250"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen"
-        MouseDoubleClick="ProcessesListBox_MouseDoubleClick"
         Closed="Window_Closed">
 
     <ListBox x:Name="ProcessesListBox"
                 HorizontalContentAlignment="Stretch"
-                ItemsSource="{Binding ProcessesInUI}">
+                ItemsSource="{Binding ProgramsInUI}"
+                SelectedItem="{Binding SelectedProgram}"
+                MouseDoubleClick="ProcessesListBox_MouseDoubleClick">
         <ListBox.ItemTemplate>
             <DataTemplate>
                 <Grid Margin="0" HorizontalAlignment="Stretch">

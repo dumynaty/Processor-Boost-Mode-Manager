@@ -32,8 +32,10 @@ namespace RegistryManagerLibrary
                 CreateNoWindow = true,
                 Verb = "runas"
             };
-            using var process = Process.Start(processInfo);
-            process?.WaitForExit();
+            using (var process = Process.Start(processInfo))
+            {
+                process?.WaitForExit();
+            }
         }
 
         public static void RegistryCurrentUserSetValue(string registryPath, string keyName, object keyValue, RegistryValueKind rVK = RegistryValueKind.Unknown)
@@ -93,7 +95,7 @@ namespace RegistryManagerLibrary
                 throw new Exception($"Couldn't register app to startup! Please check permissions! {e.Message}");
             }
         }
-        public static void UnregisterAppFromStartup(string appName, string appPath)
+        public static void UnregisterAppFromStartup(string appName)
         {
             try
             {
@@ -105,7 +107,7 @@ namespace RegistryManagerLibrary
                 throw new Exception($"Couldn't unregister app from startup! Please check permissions! {e.Message}");
             }
         }
-        public static bool IsAppStartupEnabled(string appPath, string appName)
+        public static bool IsAppStartupEnabled(string appName)
         {
             try
             {
@@ -123,7 +125,7 @@ namespace RegistryManagerLibrary
             return false;
         }
 
-        public static void PrepareCurrentPlanProcessorBoostModeValues()
+        public static void ConfigureProcessorBoostModeForActivePowerScheme()
         {
             try
             {

@@ -20,6 +20,8 @@ namespace ProcessorBoostModeManager.Views
         private string statusMessageUpper = string.Empty;
         private string statusMessageLower = string.Empty;
         private ProgramViewModel? selectedProgram = null;
+        private bool addButtonIsEnabled = true;
+
         public ObservableCollection<ProgramViewModel> ProgramsInUI { get; set; }
         public ICollectionView ProgramsView { get; private set; }
         public DatabaseService DatabaseJSON { get; private set; }
@@ -31,7 +33,7 @@ namespace ProcessorBoostModeManager.Views
         public int RunningProgramsCount { get; private set; }
         public string StatusMessageUpper { get => statusMessageUpper; set { statusMessageUpper = value; OnPropertyChanged(); } }
         public string StatusMessageLower { get => statusMessageLower; set { statusMessageLower = value; OnPropertyChanged(); } }
-        public ProgramViewModel? SelectedProgram { get => selectedProgram; set { selectedProgram = value; ; OnPropertyChanged(); } }
+        public ProgramViewModel? SelectedProgram { get => selectedProgram; set { selectedProgram = value; OnPropertyChanged(); } }
 
         public bool AutostartWithWindows { get; set; }
         public bool WindowsNotification { get; set; }
@@ -39,6 +41,8 @@ namespace ProcessorBoostModeManager.Views
         public string Theme { get; set; } = "Classic";
         public string BoostModes { get; set; } = "Disabled,Enabled,Aggressive";
         public int UpdateSpeed { get; set; }
+
+        public bool AddButtonIsEnabled { get => addButtonIsEnabled; set { addButtonIsEnabled = value; OnPropertyChanged(); } }
 
         public MainViewModel()
         {
@@ -49,7 +53,6 @@ namespace ProcessorBoostModeManager.Views
             Timer = new DispatcherTimer();
 
             ProgramsView = CollectionViewSource.GetDefaultView(ProgramsInUI);
-            // ProgramsViewSorting
             {
                 ProgramsView.SortDescriptions.Add(new SortDescription("HighestValue", ListSortDirection.Descending));
                 ProgramsView.SortDescriptions.Add(new SortDescription("IsRunning", ListSortDirection.Descending));
@@ -253,6 +256,7 @@ namespace ProcessorBoostModeManager.Views
 
         public void AddProgram()
         {
+            AddButtonIsEnabled = false;
             ProcessSelectionWindow selection = new ProcessSelectionWindow(this);
             selection.Show();
             selection.Activate();
@@ -293,7 +297,7 @@ namespace ProcessorBoostModeManager.Views
         {
             if (isChecked)
             {
-                if (RegistryManager.IsAppStartupEnabled(AppPath, AppName) == false)
+                if (RegistryManager.IsAppStartupEnabled(AppName) == false)
                 {
                     RegistryManager.RegisterAppToStartup(AppName, AppPath);
                     StatusMessageService.Upper($"Application is registered to start with Windows!");
@@ -301,7 +305,7 @@ namespace ProcessorBoostModeManager.Views
             }
             else
             {
-                RegistryManager.UnregisterAppFromStartup(AppName, AppPath);
+                RegistryManager.UnregisterAppFromStartup(AppName);
                 StatusMessageService.Upper($"Application is unregistered from starting with Windows!");
             }
             
@@ -324,9 +328,13 @@ namespace ProcessorBoostModeManager.Views
         {
             MinimizeToTray = isChecked;
         }
-        public void ToggleTheme(string selectedTheme)
+        public void ToggleTheme(string selectedTheme, Uri themeUri)
         {
             Theme = selectedTheme;
+
+            ResourceDictionary newTheme = new ResourceDictionary() { Source = themeUri };
+            App.Current.Resources.Clear();
+            App.Current.Resources.MergedDictionaries.Add(newTheme);
         }
         public void SelectBoostModes(string selectedBoostMode)
         {

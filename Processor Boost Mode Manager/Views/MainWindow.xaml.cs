@@ -36,30 +36,7 @@ namespace ProcessorBoostModeManager
 
         private void TestButton_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var program in _mainViewModel.ProgramsInUI)
-            {
-                if (_mainViewModel.BoostModes.Split(',').Contains(nameof(program.Disabled)))
-                    program.Disabled = Visibility.Visible;
-                else program.Disabled = Visibility.Collapsed;
-                if (_mainViewModel.BoostModes.Split(',').Contains(nameof(program.Enabled)))
-                    program.Enabled = Visibility.Visible;
-                else program.Enabled = Visibility.Collapsed;
-                if (_mainViewModel.BoostModes.Split(',').Contains(nameof(program.Aggressive)))
-                    program.Aggressive = Visibility.Visible;
-                else program.Aggressive = Visibility.Collapsed;
-                if (_mainViewModel.BoostModes.Split(',').Contains(nameof(program.EfficientEnabled)))
-                    program.EfficientEnabled = Visibility.Visible;
-                else program.EfficientEnabled = Visibility.Collapsed;
-                if (_mainViewModel.BoostModes.Split(',').Contains(nameof(program.EfficientAggressive)))
-                    program.EfficientAggressive = Visibility.Visible;
-                else program.EfficientAggressive = Visibility.Collapsed;
-                if (_mainViewModel.BoostModes.Split(',').Contains(nameof(program.AggressiveAtGuaranteed)))
-                    program.AggressiveAtGuaranteed = Visibility.Visible;
-                else program.AggressiveAtGuaranteed = Visibility.Collapsed;
-                if (_mainViewModel.BoostModes.Split(',').Contains(nameof(program.EfficientAggressiveAtGuaranteed)))
-                    program.EfficientAggressiveAtGuaranteed = Visibility.Visible;
-                else program.EfficientAggressiveAtGuaranteed = Visibility.Collapsed;
-            }
+            
         }
 
         private void InitializeMenuItems()
@@ -106,17 +83,13 @@ namespace ProcessorBoostModeManager
         {
             if (sender is MenuItem selectedTheme)
             {
-                _mainViewModel.Theme = (string)selectedTheme.Header;
+                _mainViewModel.ToggleTheme((string)selectedTheme.Header, new Uri($"Resources/Themes/{(string)selectedTheme.Header}.xaml", UriKind.Relative));
 
                 foreach (MenuItem item in ThemeMenuItems.Items)
                 {
-                    if ((string)item.Header != (string)selectedTheme.Header)
-                    {
-                        item.IsChecked = false;
-                    }
+                    if (item.IsChecked != ((string)item.Header == _mainViewModel.Theme))
+                        item.IsChecked = ((string)item.Header == _mainViewModel.Theme);
                 }
-                selectedTheme.IsChecked = true;
-                ApplyUITheme(new Uri($"Resources/Themes/{(string)selectedTheme.Header}.xaml", UriKind.Relative));
             }
         }
         private void BoostModeItem_Click(object sender, RoutedEventArgs e)
@@ -127,16 +100,8 @@ namespace ProcessorBoostModeManager
 
                 foreach (MenuItem boostMode in BoostModesMenuItems.Items)
                 {
-                    if (_mainViewModel.BoostModes.Split(',').Contains((string)boostMode.Header))
-                    {
-                        if (boostMode.IsChecked == false)
-                            boostMode.IsChecked = true;
-                    }
-                    else
-                    {
-                        if (boostMode.IsChecked == true)
-                            boostMode.IsChecked = false;
-                    }
+                    if (boostMode.IsChecked != _mainViewModel.BoostModes.Split(',').Contains((string)boostMode.Header))
+                        boostMode.IsChecked = _mainViewModel.BoostModes.Split(',').Contains((string)boostMode.Header);
                 }
             }
         }
@@ -154,15 +119,7 @@ namespace ProcessorBoostModeManager
                 foreach (MenuItem item in UpdateSpeedMenuItems.Items)
                 {
                     if ((string)item.Header != (string)selectedUpdateSpeed.Header)
-                    {
-                        if (item.IsChecked == true)
-                            item.IsChecked = false;
-                    }
-                    else
-                    {
-                        if (item.IsChecked == false)
-                            item.IsChecked = true;
-                    }
+                        item.IsChecked = ((string)item.Header == (string)selectedUpdateSpeed.Header);
                 }
             }
         }
@@ -323,14 +280,6 @@ namespace ProcessorBoostModeManager
             {
                 Hide();
             }
-        }
-
-        // UI Theme
-        private void ApplyUITheme(Uri themeUri)
-        {
-            ResourceDictionary Theme = new ResourceDictionary() { Source = themeUri };
-            App.Current.Resources.Clear();
-            App.Current.Resources.MergedDictionaries.Add(Theme);
         }
     }
 }
