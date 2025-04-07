@@ -126,7 +126,8 @@
                                 Content="Add" 
                                 Margin="4,4,10,5" 
                                 Width="80" Height="22" 
-                                Click="AddButton_Click"/>
+                                Click="AddButton_Click"
+                                IsEnabled="{Binding AddButtonIsEnabled}"/>
                         <Button Content="Add Manually" 
                                 Margin="0,4,10,5" 
                                 Height="22" 

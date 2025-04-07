@@ -54,8 +54,6 @@ namespace ProcessorBoostModeManager.ViewModels
         public Visibility AggressiveAtGuaranteed { get => aggressiveAtGuaranteed; set { aggressiveAtGuaranteed = value; OnPropertyChanged(); } }
         public Visibility EfficientAggressiveAtGuaranteed { get => efficientAggressiveAtGuaranteed; set { efficientAggressiveAtGuaranteed = value; OnPropertyChanged(); } }
 
-        //public ComboBoxModel CB = new();
-
         public BitmapSource? Icon { get; set; } = null;
 
 
