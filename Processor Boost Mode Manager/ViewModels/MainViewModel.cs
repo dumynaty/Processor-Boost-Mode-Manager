@@ -6,7 +6,6 @@ using RegistryManagerLibrary;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -25,7 +24,7 @@ namespace ProcessorBoostModeManager.Views
         public ObservableCollection<ProgramViewModel> ProgramsInUI { get; set; }
         public ICollectionView ProgramsView { get; private set; }
         public DatabaseService DatabaseJSON { get; private set; }
-        public ProcessMonitorService ProcessMonitor { get; private set; }
+        public ProcessMonitorService ProcessMonitorService { get; private set; }
         public StatusMessageService StatusMessageService { get; set; }
         public DispatcherTimer Timer { get; private set; }
         public string AppName { get; private set; }
@@ -48,7 +47,7 @@ namespace ProcessorBoostModeManager.Views
         {
             ProgramsInUI = new ObservableCollection<ProgramViewModel>();
             DatabaseJSON = new DatabaseService();
-            ProcessMonitor = new ProcessMonitorService();
+            ProcessMonitorService = new ProcessMonitorService();
             StatusMessageService = new StatusMessageService(this);
             Timer = new DispatcherTimer();
 
@@ -68,13 +67,14 @@ namespace ProcessorBoostModeManager.Views
 
             RegistryManager.GetActivePowerScheme();
 
-            InitialSetttings();
+            LoadAppSettingsProperties();
 
-            UpdateProgram();
-            RunTimer();
+            RunTimer(true);
         }
 
-        private void InitialSetttings()
+
+        // Program Logic
+        private void LoadAppSettingsProperties()
         {
             AutostartWithWindows = Properties.Settings.Default.AutostartWithWindows;
             WindowsNotification = Properties.Settings.Default.WindowsNotification;
@@ -83,7 +83,17 @@ namespace ProcessorBoostModeManager.Views
             BoostModes = Properties.Settings.Default.BoostModes;
             UpdateSpeed = Properties.Settings.Default.UpdateSpeed;
         }
+        public void SaveAppSettingsProperties()
+        {
+            Properties.Settings.Default.AutostartWithWindows = AutostartWithWindows;
+            Properties.Settings.Default.WindowsNotification = WindowsNotification;
+            Properties.Settings.Default.MinimizeToTray = MinimizeToTray;
+            Properties.Settings.Default.Theme = Theme;
+            Properties.Settings.Default.BoostModes = BoostModes;
+            Properties.Settings.Default.UpdateSpeed = UpdateSpeed;
 
+            Properties.Settings.Default.Save();
+        }
         public void RunTimer(bool restart = false)
         {
             if (restart == true)
@@ -101,7 +111,7 @@ namespace ProcessorBoostModeManager.Views
         }
         public void UpdateProgram()
         {
-            var (Database, HighestBoostMode) = ProcessMonitor.GetDatabaseProcessesOC(DatabaseJSON.GetDatabaseProcesses().ToList());
+            var (Database, HighestBoostMode) = ProcessMonitorService.GetDatabaseProcessesOC(DatabaseJSON.GetDatabaseProcesses().ToList());
             bool refreshNeeded = false;
             if (ProgramsInUI.Count == 0 && Database.Count != 0)
             {
@@ -109,6 +119,7 @@ namespace ProcessorBoostModeManager.Views
                 {
                     ProgramsInUI.Add(program);
                 }
+                AdjustComboBoxBoostModes();
             }
 
             if (ProgramsInUI.Count == Database.Count)
@@ -155,6 +166,8 @@ namespace ProcessorBoostModeManager.Views
                         }
                     }
                 }
+
+                AdjustComboBoxBoostModes();
             }
 
             if (refreshNeeded)
@@ -185,6 +198,8 @@ namespace ProcessorBoostModeManager.Views
             else
                 StatusMessageService.Lower($"Current mode: {(CPUBoostMode)currentBoostMode}", true, true);
         }
+
+        // ComboBoxes
         private void AdjustComboBoxBoostModes()
         {
             string[] availableBoostModes = BoostModes.Split(',');
@@ -217,26 +232,27 @@ namespace ProcessorBoostModeManager.Views
         }
         private void AdjustProgramBoostModeValuesAfterComboBoxChanges()
         {
+            string[] validBoostModes = new string[]
+            {
+                "Disabled",                         // 0
+                "Enabled",                          // 1
+                "Aggressive",                       // 2
+                "EfficientEnabled",                 // 3
+                "EfficientAggressive",              // 4
+                "AggressiveAtGuaranteed",           // 5
+                "EfficientAggressiveAtGuaranteed"   // 6
+            };
+
             int newHighestBoostMode = 0;
 
             foreach (var item in BoostModes.Split(','))
             {
-                if (item == "Disabled" && newHighestBoostMode < (int)CPUBoostMode.Disabled)
-                    newHighestBoostMode = (int)CPUBoostMode.Disabled;
-                if (item == "Disabled" && newHighestBoostMode < (int)CPUBoostMode.Disabled)
-                    newHighestBoostMode = (int)CPUBoostMode.Disabled;
-                if (item == "Enabled" && newHighestBoostMode < (int)CPUBoostMode.Enabled)
-                    newHighestBoostMode = (int)CPUBoostMode.Enabled;
-                if (item == "Aggressive" && newHighestBoostMode < (int)CPUBoostMode.Aggressive)
-                    newHighestBoostMode = (int)CPUBoostMode.Aggressive;
-                if (item == "EfficientEnabled" && newHighestBoostMode < (int)CPUBoostMode.EfficientEnabled)
-                    newHighestBoostMode = (int)CPUBoostMode.EfficientEnabled;
-                if (item == "EfficientAggressive" && newHighestBoostMode < (int)CPUBoostMode.EfficientAggressive)
-                    newHighestBoostMode = (int)CPUBoostMode.EfficientAggressive;
-                if (item == "AggressiveAtGuaranteed" && newHighestBoostMode < (int)CPUBoostMode.AggressiveAtGuaranteed)
-                    newHighestBoostMode = (int)CPUBoostMode.AggressiveAtGuaranteed;
-                if (item == "EfficientAggressiveAtGuaranteed" && newHighestBoostMode < (int)CPUBoostMode.EfficientAggressiveAtGuaranteed)
-                    newHighestBoostMode = (int)CPUBoostMode.EfficientAggressiveAtGuaranteed;
+                int index = Array.IndexOf(validBoostModes, item);
+
+                if (index > newHighestBoostMode)
+                {
+                    newHighestBoostMode = index;
+                }
             }
 
             bool needSaving = false;
@@ -254,9 +270,11 @@ namespace ProcessorBoostModeManager.Views
             }
         }
 
+        // Buttons
         public void AddProgram()
         {
             AddButtonIsEnabled = false;
+
             ProcessSelectionWindow selection = new ProcessSelectionWindow(this);
             selection.Show();
             selection.Activate();
@@ -293,6 +311,7 @@ namespace ProcessorBoostModeManager.Views
             StatusMessageService.Lower($"Program {selectedProgram.Name} has been removed!");
         }
 
+        // Menu Items
         public void ToggleAutostart(bool isChecked)
         {
             if (isChecked)
@@ -378,26 +397,12 @@ namespace ProcessorBoostModeManager.Views
 
             AdjustComboBoxBoostModes();
         }
-
-        
-
         public void ToggleUpdateSpeed(int updateSpeed)
         {
             UpdateSpeed = updateSpeed;
             RunTimer(true);
         }
 
-        public void SaveAppSettingsProperties()
-        {
-            Properties.Settings.Default.AutostartWithWindows = AutostartWithWindows;
-            Properties.Settings.Default.WindowsNotification = WindowsNotification;
-            Properties.Settings.Default.MinimizeToTray = MinimizeToTray;
-            Properties.Settings.Default.Theme = Theme;
-            Properties.Settings.Default.BoostModes = BoostModes;
-            Properties.Settings.Default.UpdateSpeed = UpdateSpeed;
-
-            Properties.Settings.Default.Save();
-        }
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
