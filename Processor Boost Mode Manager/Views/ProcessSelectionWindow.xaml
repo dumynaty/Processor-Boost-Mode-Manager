@@ -13,7 +13,7 @@
     <ListBox x:Name="ProcessesListBox"
                 HorizontalContentAlignment="Stretch"
                 ItemsSource="{Binding ProgramsInUI}"
-                SelectedItem="{Binding SelectedProgram}"
+                SelectedItem="{Binding SelectedProcess}"
                 MouseDoubleClick="ProcessesListBox_MouseDoubleClick">
         <ListBox.ItemTemplate>
             <DataTemplate>

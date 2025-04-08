@@ -28,8 +28,7 @@
                 <MenuItem x:Name="MinimizeToTrayMenuItem"
                           Header="Minimize to Tray"
                           IsCheckable="True"
-                          IsChecked="{Binding MinimizeToTray}"
-                          Click="MinimizeToTray_Click"/>
+                          IsChecked="{Binding MinimizeToTray}"/>
                 <MenuItem x:Name="ThemeMenuItems"
                           Header="Theme">
                     <MenuItem Header="Classic"
@@ -99,16 +98,18 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <CheckBox Content="Autostart with Windows" Height="15" HorizontalAlignment="Left"
+                    <CheckBox Content="Autostart with Windows" 
+                              Height="15" 
+                              HorizontalAlignment="Left"
                               Margin="10,10,0,0"
                               Grid.Row="0"
-                              IsChecked="{Binding AutostartWithWindows}"
-                              Click="AutostartCheckBox_Click"/>
-                    <CheckBox Content="Windows Pop-up Notifications" Height="15" HorizontalAlignment="Left"
+                              IsChecked="{Binding AutostartWithWindows}"/>
+                    <CheckBox Content="Windows Pop-up Notifications" 
+                              Height="15" 
+                              HorizontalAlignment="Left"
                               Margin="10,10,0,0"
                               Grid.Row="1"
-                              IsChecked="{Binding WindowsNotification}"
-                              Click="WindowsNotificationCheckBox_Click"/>
+                              IsChecked="{Binding WindowsNotification}"/>
                 </Grid>
             </GroupBox>
 
@@ -155,7 +156,7 @@
                              ItemsSource="{Binding ProgramsView}"
                              PreviewMouseLeftButtonDown="ProcessListBox_PreviewMouseLeftButtonDown"
                              PreviewMouseRightButtonDown="ProcessListBox_PreviewMouseRightButtonDown"
-                             SelectionChanged="ProcessListBox_SelectionChanged"
+                             SelectedItem="{Binding SelectedProgram}"
                              ContextMenuOpening="ProcessListBox_ContextMenuOpening">
                         <ListBox.ContextMenu>
                             <ContextMenu>

@@ -13,13 +13,13 @@ namespace ProcessorBoostModeManager.ViewModels
         private MainViewModel _mainViewModel;
         public ObservableCollection<ProgramViewModel> ProgramsInUI { get; set; }
 
-        private ProgramViewModel? _selectedProgram = null;
-        public ProgramViewModel? SelectedProgram 
+        private ProgramViewModel? _selectedProcess = null;
+        public ProgramViewModel? SelectedProcess
         { 
-            get => _selectedProgram; 
+            get => _selectedProcess; 
             set 
             {
-                _selectedProgram = value;
+                _selectedProcess = value;
                 OnPropertyChanged();
             }
         }
@@ -67,13 +67,13 @@ namespace ProcessorBoostModeManager.ViewModels
         }
         public bool AddProgramToDatabase()
         {
-            if (SelectedProgram == null)
+            if (SelectedProcess == null)
                 return false;
 
             try
             {
-                _mainViewModel.DatabaseJSON.AddProgramToDatabase(SelectedProgram.Model);
-                _mainViewModel.StatusMessageService.Lower($"Program {SelectedProgram.Name} has been added to the Database!");
+                _mainViewModel.DatabaseJSON.AddProgramToDatabase(SelectedProcess.Model);
+                _mainViewModel.StatusMessageService.Lower($"Program {SelectedProcess.Name} has been added to the Database!");
                 _mainViewModel.UpdateProgram();
 
                 return true;

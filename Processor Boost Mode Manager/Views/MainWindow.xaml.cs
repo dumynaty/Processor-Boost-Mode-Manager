@@ -72,13 +72,6 @@ namespace ProcessorBoostModeManager
         {
             Close();
         }
-        private void MinimizeToTray_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is MenuItem MinimizeToTrayCheckBox)
-            {
-                _mainViewModel.ToggleMinimizeToTray(MinimizeToTrayCheckBox.IsChecked);
-            }
-        }
         private void ChangedTheme_Click(object sender, RoutedEventArgs e)
         {
             if (sender is MenuItem selectedTheme)
@@ -114,7 +107,7 @@ namespace ProcessorBoostModeManager
             if (sender is MenuItem selectedUpdateSpeed)
             {
                 int updateSpeed = int.Parse((string)selectedUpdateSpeed.Tag);
-                _mainViewModel.ToggleUpdateSpeed(updateSpeed);
+                _mainViewModel.UpdateSpeed = updateSpeed;
 
                 foreach (MenuItem item in UpdateSpeedMenuItems.Items)
                 {
@@ -142,22 +135,6 @@ namespace ProcessorBoostModeManager
             }
         }
 
-        // CheckBoxes
-        private void AutostartCheckBox_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is System.Windows.Controls.CheckBox checkBox)
-            {
-                _mainViewModel.ToggleAutostart(checkBox.IsChecked ?? false);
-            }
-        }
-        private void WindowsNotificationCheckBox_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is System.Windows.Controls.CheckBox checkBox)
-            {
-                _mainViewModel.ToggleWindowsNotification(checkBox.IsChecked ?? false);
-            }
-        }
-
         // Buttons
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
@@ -180,18 +157,7 @@ namespace ProcessorBoostModeManager
         }
 
         // ListBox
-        private void ProcessListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var listBoxItem = sender as ListBoxItem;
-            if (ProcessListBox.SelectedItem is ProgramViewModel selectedProgram)
-            {
-                _mainViewModel.SelectedProgram = selectedProgram;
-            }
-            else
-            {
-                _mainViewModel.SelectedProgram = null;
-            }
-        }
+        // !!! --- Implement this method in ProcessSelectionWindow and see if MouseBindings will work --- !!!
         private void ProcessListBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             // Run order: ComboBox check, Deselection.

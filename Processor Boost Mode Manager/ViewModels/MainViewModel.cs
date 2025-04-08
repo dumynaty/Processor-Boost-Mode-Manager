@@ -16,10 +16,15 @@ namespace ProcessorBoostModeManager.Views
 {
     public class MainViewModel : INotifyPropertyChanged
     {
+        private bool OnStartup = true;
         private string statusMessageUpper = string.Empty;
         private string statusMessageLower = string.Empty;
         private ProgramViewModel? selectedProgram = null;
+        private int runningProgramsCount;
         private bool addButtonIsEnabled = true;
+        private bool autostartWithWindows;
+        private bool windowsNotification;
+        private int updateSpeed;
 
         public ObservableCollection<ProgramViewModel> ProgramsInUI { get; set; }
         public ICollectionView ProgramsView { get; private set; }
@@ -29,19 +34,88 @@ namespace ProcessorBoostModeManager.Views
         public DispatcherTimer Timer { get; private set; }
         public string AppName { get; private set; }
         public string AppPath { get; private set; }
-        public int RunningProgramsCount { get; private set; }
-        public string StatusMessageUpper { get => statusMessageUpper; set { statusMessageUpper = value; OnPropertyChanged(); } }
-        public string StatusMessageLower { get => statusMessageLower; set { statusMessageLower = value; OnPropertyChanged(); } }
-        public ProgramViewModel? SelectedProgram { get => selectedProgram; set { selectedProgram = value; OnPropertyChanged(); } }
+        public string StatusMessageUpper 
+        {
+            get => statusMessageUpper; 
+            set 
+            {
+                statusMessageUpper = value;
+                OnPropertyChanged(); 
+            }
+        }
+        public string StatusMessageLower 
+        { 
+            get => statusMessageLower; 
+            set 
+            { 
+                statusMessageLower = value;
+                OnPropertyChanged(); 
+            } 
+        }
+        public ProgramViewModel? SelectedProgram 
+        {
+            get => selectedProgram; 
+            set 
+            {
+                selectedProgram = value; 
+                OnPropertyChanged();
+                if (selectedProgram != null)
+                    StatusMessageService.Lower($"Process selected: {selectedProgram.Name}", true);
+                else
+                    StatusMessageService.Lower($"Current mode: {(CPUBoostMode)CurrentBoostMode}", true, true);
+            }
+        }
+        public int RunningProgramsCount
+        {
+            get => runningProgramsCount;
+            private set
+            {
+                if (runningProgramsCount != value)
+                {
+                    runningProgramsCount = value;
+                }
+                StatusMessageService.Upper($"Currently running programs: {RunningProgramsCount}", true, true);
+            }
+        }
 
-        public bool AutostartWithWindows { get; set; }
-        public bool WindowsNotification { get; set; }
+        public bool AutostartWithWindows
+        {
+            get => autostartWithWindows;
+            set
+            {
+                autostartWithWindows = value;
+                OnPropertyChanged();
+                ToggleAutostart(autostartWithWindows);
+            }
+        }
+        public bool WindowsNotification
+        {
+            get => windowsNotification;
+            set
+            {
+                windowsNotification = value;
+                OnPropertyChanged();
+
+                if (OnStartup == false)
+                    ToggleWindowsNotification(windowsNotification);
+            }
+        }
         public bool MinimizeToTray { get; set; }
         public string Theme { get; set; } = "Classic";
         public string BoostModes { get; set; } = "Disabled,Enabled,Aggressive";
-        public int UpdateSpeed { get; set; }
+        public int UpdateSpeed 
+        {
+            get => updateSpeed; 
+            set
+            {
+                updateSpeed = value;
+                OnPropertyChanged();
+                RunTimer(true);
+            }
+        }
 
         public bool AddButtonIsEnabled { get => addButtonIsEnabled; set { addButtonIsEnabled = value; OnPropertyChanged(); } }
+        private CPUBoostMode CurrentBoostMode = CPUBoostMode.Unknown;
 
         public MainViewModel()
         {
@@ -82,6 +156,8 @@ namespace ProcessorBoostModeManager.Views
             Theme = Properties.Settings.Default.Theme;
             BoostModes = Properties.Settings.Default.BoostModes;
             UpdateSpeed = Properties.Settings.Default.UpdateSpeed;
+
+            OnStartup = false;
         }
         public void SaveAppSettingsProperties()
         {
@@ -174,6 +250,8 @@ namespace ProcessorBoostModeManager.Views
                 ProgramsView.Refresh();
 
             int currentBoostMode = RegistryManager.GetProcessorBoostMode();
+            CurrentBoostMode = (CPUBoostMode)currentBoostMode;
+
             if (currentBoostMode != HighestBoostMode)
             {
                 try
@@ -191,12 +269,6 @@ namespace ProcessorBoostModeManager.Views
             }
 
             RunningProgramsCount = ProgramsInUI.Count(p => p.IsRunning);
-            StatusMessageService.Upper($"Currently running programs: {RunningProgramsCount}", true, true);
-
-            if (SelectedProgram != null)
-                StatusMessageService.Lower($"Process selected: {SelectedProgram.Name}", true);
-            else
-                StatusMessageService.Lower($"Current mode: {(CPUBoostMode)currentBoostMode}", true, true);
         }
 
         // ComboBoxes
@@ -324,16 +396,15 @@ namespace ProcessorBoostModeManager.Views
             }
             else
             {
-                RegistryManager.UnregisterAppFromStartup(AppName);
-                StatusMessageService.Upper($"Application is unregistered from starting with Windows!");
+                if (RegistryManager.IsAppStartupEnabled(AppName) == true)
+                {
+                    RegistryManager.UnregisterAppFromStartup(AppName);
+                    StatusMessageService.Upper($"Application is unregistered from starting with Windows!");
+                }
             }
-            
-            AutostartWithWindows = isChecked;
         }
         public void ToggleWindowsNotification(bool isChecked)
         {
-            WindowsNotification = isChecked;
-
             if (isChecked)
             {
                 StatusMessageService.Upper($"Application will notify changes with Windows Baloon Pop-up!");
@@ -342,10 +413,6 @@ namespace ProcessorBoostModeManager.Views
             {
                 StatusMessageService.Upper($"Application will not notify changes with Windows Baloon Pop-up!");
             }
-        }
-        public void ToggleMinimizeToTray(bool isChecked)
-        {
-            MinimizeToTray = isChecked;
         }
         public void ToggleTheme(string selectedTheme, Uri themeUri)
         {
@@ -359,8 +426,6 @@ namespace ProcessorBoostModeManager.Views
         {
             string currentBoostModes = BoostModes;
             string boostMode = selectedBoostMode;
-
-            
 
             if (currentBoostModes.Split(',').Contains(boostMode))
             {
@@ -396,11 +461,6 @@ namespace ProcessorBoostModeManager.Views
             BoostModes = currentBoostModes;
 
             AdjustComboBoxBoostModes();
-        }
-        public void ToggleUpdateSpeed(int updateSpeed)
-        {
-            UpdateSpeed = updateSpeed;
-            RunTimer(true);
         }
 
 
