@@ -94,17 +94,5 @@ namespace ProcessorBoostModeManager.Properties {
                 this["UpdateSpeed"] = value;
             }
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string BoostModesTest {
-            get {
-                return ((string)(this["BoostModesTest"]));
-            }
-            set {
-                this["BoostModesTest"] = value;
-            }
-        }
     }
 }

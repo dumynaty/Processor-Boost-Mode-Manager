@@ -1,5 +1,5 @@
 ﻿using ProcessorBoostModeManager.Enums;
-using ProcessorBoostModeManager.Models;
+using ProcessorBoostModeManager.Models.Poco;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;

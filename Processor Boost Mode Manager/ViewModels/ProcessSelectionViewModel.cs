@@ -1,5 +1,5 @@
 ﻿using ProcessorBoostModeManager.Common;
-using ProcessorBoostModeManager.Models;
+using ProcessorBoostModeManager.Models.Poco;
 using ProcessorBoostModeManager.Views;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -72,7 +72,7 @@ namespace ProcessorBoostModeManager.ViewModels
 
             try
             {
-                _mainViewModel.DatabaseJSON.AddProgramToDatabase(SelectedProcess.Model);
+                _mainViewModel.DatabaseService.AddProgramToDatabase(SelectedProcess.Model);
                 _mainViewModel.StatusMessageService.Lower($"Program {SelectedProcess.Name} has been added to the Database!");
                 _mainViewModel.UpdateProgram();
 

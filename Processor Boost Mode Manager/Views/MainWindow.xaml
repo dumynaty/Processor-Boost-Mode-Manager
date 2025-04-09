@@ -1,11 +1,15 @@
-﻿<Window x:Class="ProcessorBoostModeManager.MainWindow"
+﻿<!-- MenuItem Parent Access: https://stackoverflow.com/questions/18515399/trying-to-bind-datagrid-item-source-to-a-property-in-another-class -->
+<!-- MenuItem DataTemplate without blank spaces on the left side: https://stackoverflow.com/questions/1312895/using-a-datatemplate-for-a-menuitem-causes-extra-space-on-the-left-side-to-appea -->
+
+<Window x:Class="ProcessorBoostModeManager.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Processor Boost Mode Manager" 
         Height="650" Width="420"
         ResizeMode="CanMinimize"
+        WindowStyle="SingleBorderWindow"
         WindowStartupLocation="CenterScreen"
-        StateChanged="Window_StateChanged" WindowStyle="SingleBorderWindow">
+        StateChanged="Window_StateChanged">
 
 
     <Grid>
@@ -23,49 +27,63 @@
             <MenuItem Header="File">
                 <MenuItem Header="Exit" Click="Exit_Click"/>
             </MenuItem>
-            
+
             <MenuItem Header="Options">
-                <MenuItem x:Name="MinimizeToTrayMenuItem"
-                          Header="Minimize to Tray"
+                <MenuItem Header="Minimize to Tray"
                           IsCheckable="True"
-                          IsChecked="{Binding MinimizeToTray}"/>
-                <MenuItem x:Name="ThemeMenuItems"
-                          Header="Theme">
-                    <MenuItem Header="Classic"
-                              IsCheckable="True"
-                              Click="ChangedTheme_Click"/>
-                    <MenuItem Header="Light"
-                              IsCheckable="True"
-                              Click="ChangedTheme_Click"/>
-                    <MenuItem Header="Dark"
-                              IsCheckable="True"
-                              Click="ChangedTheme_Click"/>
+                          IsChecked="{Binding MinimizeToTray, Mode=TwoWay}">
                 </MenuItem>
-                <MenuItem x:Name="BoostModesMenuItems"
-                          Header="Boost Modes">
-                    <MenuItem Header="Disabled" IsCheckable="True" Click="BoostModeItem_Click"/>
-                    <MenuItem Header="Enabled" IsCheckable="True" Click="BoostModeItem_Click"/>
-                    <MenuItem Header="Aggressive" IsCheckable="True" Click="BoostModeItem_Click"/>
-                    <MenuItem Header="EfficientEnabled" IsCheckable="True" Click="BoostModeItem_Click"/>
-                    <MenuItem Header="EfficientAggressive" IsCheckable="True" Click="BoostModeItem_Click"/>
-                    <MenuItem Header="AggressiveAtGuaranteed" IsCheckable="True" Click="BoostModeItem_Click"/>
-                    <MenuItem Header="EfficientAggressiveAtGuaranteed" IsCheckable="True" Click="BoostModeItem_Click"/>
+
+                <MenuItem Header="Theme"
+                          ItemsSource="{Binding ThemeService.ThemeMenuItems}">
+                    <MenuItem.ItemContainerStyle>
+                        <Style TargetType="MenuItem">
+                            <Setter Property="Header" Value="{Binding Name}"/>
+                            <Setter Property="IsCheckable" Value="True"/>
+                            <Setter Property="IsChecked" Value="{Binding IsChecked}"/>
+                            <Setter Property="Command" Value="{Binding DataContext.ToggleThemeCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                            <Setter Property="CommandParameter" Value="{Binding Name}"/>
+                        </Style>
+                    </MenuItem.ItemContainerStyle>
+                </MenuItem>
+
+                <MenuItem Header="Boost Modes Test"
+                          ItemsSource="{Binding BoostModeMenuItemService.BoostModeMenuItems}">
+                    <MenuItem.ItemContainerStyle>
+                        <Style TargetType="MenuItem">
+                            <Setter Property="Header" Value="{Binding Name}"/>
+                            <Setter Property="IsCheckable" Value="True"/>
+                            <Setter Property="IsChecked" Value="{Binding IsChecked}"/>
+                            <Setter Property="Command" Value="{Binding DataContext.ToggleBoostModeCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                            <Setter Property="CommandParameter" Value="{Binding Name}"/>
+                        </Style>
+                    </MenuItem.ItemContainerStyle>
                 </MenuItem>
             </MenuItem>
 
             <MenuItem Header="View">
                 <MenuItem Header="Refresh Now" 
-                          Click="RefreshMenuItem_Click"/>
-                <MenuItem x:Name="UpdateSpeedMenuItems"
-                          Header="Update Speed">
-                    <MenuItem Header="High (1 second)" IsCheckable="True" Click="UpdateSpeedMenuItem_Click" Tag="1"/>
-                    <MenuItem Header="Medium (5 seconds)" IsCheckable="True" Click="UpdateSpeedMenuItem_Click" Tag="5"/>
-                    <MenuItem Header="Low (60 seconds)" IsCheckable="True" Click="UpdateSpeedMenuItem_Click" Tag="60"/>
+                          Command="{Binding RefreshCommand}"/>
+
+                <MenuItem Header="Update Speed"
+                          ItemsSource="{Binding UpdateSpeedService.UpdateSpeedMenuItems}">
+                    <MenuItem.ItemContainerStyle>
+                        <Style TargetType="MenuItem">
+                            <Setter Property="Header" Value="{Binding Name}"/>
+                            <Setter Property="IsCheckable" Value="True"/>
+                            <Setter Property="IsChecked" Value="{Binding IsChecked}"/>
+                            <Setter Property="Command" Value="{Binding DataContext.ToggleUpdateSpeedCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                            <Setter Property="CommandParameter" Value="{Binding Speed}"/>
+                        </Style>
+                    </MenuItem.ItemContainerStyle>
                 </MenuItem>
+
             </MenuItem>
 
             <MenuItem Header="Help">
                 <MenuItem Header="App Info" Click="AppInfo_Click"/>
+                <MenuItem Header="Reset Settings to Defaults" Command="{Binding ResetSettingsCommand}" Foreground="Red"/>
+                <MenuItem Header="Clear Database" Command="{Binding ClearDatabaseCommand}" Foreground="Red"/>
             </MenuItem>
         </Menu>
 
@@ -103,13 +121,13 @@
                               HorizontalAlignment="Left"
                               Margin="10,10,0,0"
                               Grid.Row="0"
-                              IsChecked="{Binding AutostartWithWindows}"/>
+                              IsChecked="{Binding AutostartWithWindows, Mode=TwoWay}"/>
                     <CheckBox Content="Windows Pop-up Notifications" 
                               Height="15" 
                               HorizontalAlignment="Left"
                               Margin="10,10,0,0"
                               Grid.Row="1"
-                              IsChecked="{Binding WindowsNotification}"/>
+                              IsChecked="{Binding WindowsNotification, Mode=TwoWay}"/>
                 </Grid>
             </GroupBox>
 
@@ -123,27 +141,27 @@
                     </Grid.RowDefinitions>
 
                     <DockPanel Grid.Row="0" Margin="0,4,0,0" HorizontalAlignment="Stretch">
-                        <Button x:Name="AddButton" 
-                                Content="Add" 
-                                Margin="4,4,10,5" 
-                                Width="80" Height="22" 
-                                Click="AddButton_Click"
-                                IsEnabled="{Binding AddButtonIsEnabled}"/>
-                        <Button Content="Add Manually" 
-                                Margin="0,4,10,5" 
-                                Height="22" 
-                                Width="100" 
-                                Click="AddManuallyButton_Click"/>
-                        <Button Content="Remove" 
-                                Margin="0,4,10,5" 
-                                Width="80" Height="22" 
-                                Click="RemoveButton_Click" 
-                                HorizontalAlignment="Left"/>
-                        <Button Content="Test" 
-                                Margin="0,4,10,5" 
-                                Width="50" Height="22" 
-                                Click="TestButton_Click" 
-                                HorizontalAlignment="Right"/>
+                        <Button x:Name="AddButton"
+                                Content="Add"
+                                Margin="4,4,10,5"
+                                Width="80" Height="22"
+                                Command="{Binding AddCommand}"
+                                IsEnabled ="{Binding AddButtonIsEnabled}"/>
+                        <Button Content="Add Manually"
+                                Margin="0,4,10,5"
+                                Height="22"
+                                Width="100"
+                                Command="{Binding AddManuallyCommand}"/>
+                        <Button Content="Remove"
+                                Margin="0,4,10,5"
+                                Width="80" Height="22"
+                                HorizontalAlignment="Left"
+                                Command="{Binding RemoveCommand}"/>
+                        <Button Content="Test"
+                                Margin="0,4,10,5"
+                                Width="50" Height="22"
+                                HorizontalAlignment="Right"
+                                Click="TestButton_Click"/>
                     </DockPanel>
 
                     <ListBox x:Name="ProcessListBox"
@@ -154,15 +172,14 @@
                              HorizontalContentAlignment="Stretch"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              ItemsSource="{Binding ProgramsView}"
+                             SelectedItem="{Binding SelectedProgram}"
                              PreviewMouseLeftButtonDown="ProcessListBox_PreviewMouseLeftButtonDown"
                              PreviewMouseRightButtonDown="ProcessListBox_PreviewMouseRightButtonDown"
-                             SelectedItem="{Binding SelectedProgram}"
                              ContextMenuOpening="ProcessListBox_ContextMenuOpening">
                         <ListBox.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="Open File Location"
-                                          Click="OpenFileLocationMenuItem_Click"
-                                          x:Name="OpenFileLocationMenuItem"/>
+                                          Command="{Binding OpenFileLocationCommand}"/>
                             </ContextMenu>
                         </ListBox.ContextMenu>
                         <ListBox.ItemTemplate>
@@ -215,29 +232,21 @@
                                               Height="NaN" 
                                               VerticalContentAlignment="Center"
                                               SelectedValue="{Binding BoostMode, Mode=TwoWay}"
-                                              SelectedValuePath="Tag"
-                                              SelectionChanged="ComboBox_SelectionChanged"
-                                              DropDownClosed="ComboBox_DropDownClosed">
-                                        <ComboBoxItem Content="Disabled" 
-                                                      Tag ="Disabled" 
+                                              SelectedValuePath="Content"
+                                              SelectionChanged="ComboBox_SelectionChanged">
+                                        <ComboBoxItem Content="Disabled"
                                                       Visibility="{Binding Disabled, UpdateSourceTrigger=PropertyChanged}"/>
-                                        <ComboBoxItem Content="Enabled" 
-                                                      Tag ="Enabled"
+                                        <ComboBoxItem Content="Enabled"
                                                       Visibility="{Binding Enabled, UpdateSourceTrigger=PropertyChanged}"/>
-                                        <ComboBoxItem Content="Aggressive" 
-                                                      Tag ="Aggressive"
+                                        <ComboBoxItem Content="Aggressive"
                                                       Visibility="{Binding Aggressive, UpdateSourceTrigger=PropertyChanged}"/>
-                                        <ComboBoxItem Content="EfficientEnabled" 
-                                                      Tag ="EfficientEnabled"
+                                        <ComboBoxItem Content="EfficientEnabled"
                                                       Visibility="{Binding EfficientEnabled, UpdateSourceTrigger=PropertyChanged}"/>
-                                        <ComboBoxItem Content="EfficientAggressive" 
-                                                      Tag ="EfficientAggressive"
+                                        <ComboBoxItem Content="EfficientAggressive"
                                                       Visibility="{Binding EfficientAggressive, UpdateSourceTrigger=PropertyChanged}"/>
-                                        <ComboBoxItem Content="AggressiveAtGuaranteed" 
-                                                      Tag ="AggressiveAtGuaranteed"
+                                        <ComboBoxItem Content="AggressiveAtGuaranteed"
                                                       Visibility="{Binding AggressiveAtGuaranteed, UpdateSourceTrigger=PropertyChanged}"/>
-                                        <ComboBoxItem Content="EfficientAggressiveAtGuaranteed" 
-                                                      Tag ="EfficientAggressiveAtGuaranteed"
+                                        <ComboBoxItem Content="EfficientAggressiveAtGuaranteed"
                                                       Visibility="{Binding EfficientAggressiveAtGuaranteed, UpdateSourceTrigger=PropertyChanged}"/>
                                     </ComboBox>
                                 </Grid>

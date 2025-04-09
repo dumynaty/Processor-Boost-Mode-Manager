@@ -95,7 +95,9 @@ namespace ProcessorBoostModeManager
         protected override void OnExit(ExitEventArgs e)
         {
             trayIcon?.Dispose();
-            MainWindowInstance?._mainViewModel.SaveAppSettingsProperties();
+
+            MainWindowInstance._mainViewModel.DatabaseService.SaveDatabase(MainWindowInstance._mainViewModel.ProgramsInUI.Select(p => p.Model).ToList());
+            MainWindowInstance._mainViewModel.AppSettingService.SaveSettings();
             base.OnExit(e);
         }
     }

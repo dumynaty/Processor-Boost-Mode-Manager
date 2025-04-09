@@ -13,8 +13,8 @@ namespace ProcessorBoostModeManager.Common
 
         private string permanentUpperMessage = string.Empty;
         private string permanentLowerMessage = string.Empty;
-        private readonly DispatcherTimer timerLower = new();
         private readonly DispatcherTimer timerUpper = new();
+        private readonly DispatcherTimer timerLower = new();
 
         public void Upper(string message, bool priority = false, bool ignoreIfTimerOn = false)
         {
@@ -42,27 +42,29 @@ namespace ProcessorBoostModeManager.Common
             }
         }
 
-        public void Lower(string message, bool permanent = false, bool ignoreIfTimerOn = false)
+        public void Lower(string message, bool priority = false, bool ignoreIfTimerOn = false)
         {
             if (ignoreIfTimerOn == true && timerLower.IsEnabled == true)
                 return;
 
-            if (permanent == false)
+            if (priority == true)
+            {
+                timerLower.Stop();
+                permanentLowerMessage = message;
+                MainViewModel.StatusMessageLower = permanentLowerMessage;
+            }
+            else if (priority == false)
             {
                 MainViewModel.StatusMessageLower = message;
 
                 timerLower.Interval = TimeSpan.FromSeconds(5);
                 timerLower.Tick += (s, e) =>
                 {
-                    MainViewModel.StatusMessageLower = permanentLowerMessage;
+                    if (MainViewModel.StatusMessageLower == message)
+                        MainViewModel.StatusMessageLower = permanentLowerMessage;
                     timerLower.Stop();
                 };
                 timerLower.Start();
-            }
-            else
-            {
-                permanentLowerMessage = message;
-                MainViewModel.StatusMessageLower = permanentLowerMessage;
             }
         }
     }

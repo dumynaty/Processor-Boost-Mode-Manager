@@ -1,6 +1,9 @@
-﻿using ProcessorBoostModeManager.Common;
+﻿using ProcessorBoostModeManager.Commands;
+using ProcessorBoostModeManager.Common;
+using ProcessorBoostModeManager.Common.MenuItemsServices;
+using ProcessorBoostModeManager.Common.shell32;
 using ProcessorBoostModeManager.Enums;
-using ProcessorBoostModeManager.Models;
+using ProcessorBoostModeManager.Models.Poco;
 using ProcessorBoostModeManager.ViewModels;
 using RegistryManagerLibrary;
 using System.Collections.ObjectModel;
@@ -16,21 +19,48 @@ namespace ProcessorBoostModeManager.Views
 {
     public class MainViewModel : INotifyPropertyChanged
     {
+        public RelayCommand ToggleThemeCommand => new RelayCommand(param =>
+        {
+            string theme = param as string ?? "Classic";
+            ToggleTheme(theme);
+            OnPropertyChanged();
+        });
+        public RelayCommand ToggleBoostModeCommand => new RelayCommand(param =>
+        {
+            string boostMode = (string)param;
+            ToggleBoostMode(boostMode);
+            OnPropertyChanged();
+        });
+        public RelayCommand ToggleUpdateSpeedCommand => new RelayCommand(param =>
+        {
+            int speed = (int)param;
+            ToggleUpdateSpeed(speed);
+            OnPropertyChanged();
+        });
+        public RelayCommand RefreshCommand => new RelayCommand(execute => UpdateProgram());
+        public RelayCommand ResetSettingsCommand => new RelayCommand(execute => ResetSavedSettings());
+        public RelayCommand ClearDatabaseCommand => new RelayCommand(execute => ClearDatabase());
+        public RelayCommand AddCommand => new RelayCommand(execute => AddProgram());
+        public RelayCommand AddManuallyCommand => new RelayCommand(execute => AddProgramManually());
+        public RelayCommand RemoveCommand => new RelayCommand(execute => RemoveProgram());
+        public RelayCommand OpenFileLocationCommand => new RelayCommand(execute => OpenFileLocation(), canExecute => SelectedProgram != null);
+
         private bool OnStartup = true;
         private string statusMessageUpper = string.Empty;
         private string statusMessageLower = string.Empty;
         private ProgramViewModel? selectedProgram = null;
         private int runningProgramsCount;
         private bool addButtonIsEnabled = true;
-        private bool autostartWithWindows;
-        private bool windowsNotification;
-        private int updateSpeed;
 
         public ObservableCollection<ProgramViewModel> ProgramsInUI { get; set; }
         public ICollectionView ProgramsView { get; private set; }
-        public DatabaseService DatabaseJSON { get; private set; }
+        public AppSettingsService AppSettingService { get; set; }
+        public DatabaseService DatabaseService { get; private set; }
         public ProcessMonitorService ProcessMonitorService { get; private set; }
         public StatusMessageService StatusMessageService { get; set; }
+        public ThemeService ThemeService { get; set; }
+        public BoostModeService BoostModeMenuItemService { get; set; }
+        public UpdateSpeedService UpdateSpeedService { get; set; }
         public DispatcherTimer Timer { get; private set; }
         public string AppName { get; private set; }
         public string AppPath { get; private set; }
@@ -58,11 +88,11 @@ namespace ProcessorBoostModeManager.Views
             set 
             {
                 selectedProgram = value; 
-                OnPropertyChanged();
                 if (selectedProgram != null)
-                    StatusMessageService.Lower($"Process selected: {selectedProgram.Name}", true);
+                    StatusMessageService.Lower($"Process selected: {selectedProgram.Name}", true, true);
                 else
                     StatusMessageService.Lower($"Current mode: {(CPUBoostMode)CurrentBoostMode}", true, true);
+                OnPropertyChanged();
             }
         }
         public int RunningProgramsCount
@@ -73,56 +103,114 @@ namespace ProcessorBoostModeManager.Views
                 if (runningProgramsCount != value)
                 {
                     runningProgramsCount = value;
+                    StatusMessageService.Upper($"Currently running programs: {RunningProgramsCount}", true, true);
                 }
-                StatusMessageService.Upper($"Currently running programs: {RunningProgramsCount}", true, true);
             }
         }
 
         public bool AutostartWithWindows
         {
-            get => autostartWithWindows;
+            get => AppSettingService.AutostartWithWindows;
             set
             {
-                autostartWithWindows = value;
-                OnPropertyChanged();
-                ToggleAutostart(autostartWithWindows);
+                if (AppSettingService.AutostartWithWindows != value)
+                {
+                    AppSettingService.AutostartWithWindows = value;
+
+                    ToggleAutostart(value);
+                }
             }
         }
         public bool WindowsNotification
         {
-            get => windowsNotification;
+            get => AppSettingService.WindowsNotification;
             set
             {
-                windowsNotification = value;
-                OnPropertyChanged();
+                if (AppSettingService.WindowsNotification != value)
+                {
+                    AppSettingService.WindowsNotification = value;
 
-                if (OnStartup == false)
-                    ToggleWindowsNotification(windowsNotification);
+                    if (OnStartup == false)
+                        ToggleWindowsNotification(AppSettingService.WindowsNotification);
+                }
             }
         }
-        public bool MinimizeToTray { get; set; }
-        public string Theme { get; set; } = "Classic";
-        public string BoostModes { get; set; } = "Disabled,Enabled,Aggressive";
-        public int UpdateSpeed 
+        public bool MinimizeToTray
         {
-            get => updateSpeed; 
+            get => AppSettingService.MinimizeToTray;
             set
             {
-                updateSpeed = value;
-                OnPropertyChanged();
-                RunTimer(true);
+                if (AppSettingService.MinimizeToTray != value)
+                {
+                    AppSettingService.MinimizeToTray = value;
+                }
+            }
+        }
+        public string Theme 
+        {
+            get => AppSettingService.Theme;
+            set
+            {
+                if (AppSettingService.Theme != value)
+                {
+                    AppSettingService.Theme = value;
+                }
+            }
+        }
+        public string BoostModes
+        {
+            get => AppSettingService.BoostModes;
+            set
+            {
+                if (AppSettingService.BoostModes != value)
+                {
+                    AppSettingService.BoostModes = value;
+
+                    AdjustComboBoxBoostModes();
+                }
+            }
+        }
+        public int UpdateSpeed 
+        {
+            get => AppSettingService.UpdateSpeed; 
+            set
+            {
+                if (AppSettingService.UpdateSpeed != value)
+                {
+                    AppSettingService.UpdateSpeed = value;
+
+                    RunTimer(true);
+                }
             }
         }
 
         public bool AddButtonIsEnabled { get => addButtonIsEnabled; set { addButtonIsEnabled = value; OnPropertyChanged(); } }
-        private CPUBoostMode CurrentBoostMode = CPUBoostMode.Unknown;
+
+        private CPUBoostMode currentBoostMode = CPUBoostMode.Disabled;
+        public CPUBoostMode CurrentBoostMode
+        {
+            get => currentBoostMode;
+            set
+            {
+                if (currentBoostMode != value)
+                {
+                    currentBoostMode = value;
+                    if (SelectedProgram == null)
+                        StatusMessageService.Lower($"Current mode: {CurrentBoostMode}", true, true);
+                }
+            }
+        }
 
         public MainViewModel()
         {
             ProgramsInUI = new ObservableCollection<ProgramViewModel>();
-            DatabaseJSON = new DatabaseService();
+            AppSettingService = new AppSettingsService();
+            DatabaseService = new DatabaseService();
             ProcessMonitorService = new ProcessMonitorService();
             StatusMessageService = new StatusMessageService(this);
+            ThemeService = new ThemeService();
+            BoostModeMenuItemService = new BoostModeService();
+            UpdateSpeedService = new UpdateSpeedService();
             Timer = new DispatcherTimer();
 
             ProgramsView = CollectionViewSource.GetDefaultView(ProgramsInUI);
@@ -136,40 +224,15 @@ namespace ProcessorBoostModeManager.Views
             AppName = Assembly.GetExecutingAssembly().GetName().Name ?? "Processor Boost Mode Manager";
             AppPath = Environment.ProcessPath ?? string.Empty;
 
-            StatusMessageUpper = "Awaiting settings status..";
-            StatusMessageLower = "Awaiting database status..";
-
+            AppSettingService.LoadSettings();
+            ThemeService.SetMenuItemsTheme(Theme);
+            BoostModeMenuItemService.SetMenuItemsSavedState(BoostModes);
+            UpdateSpeedService.SetMenuItemsUpdateSpeed(UpdateSpeed);
             RegistryManager.GetActivePowerScheme();
-
-            LoadAppSettingsProperties();
 
             RunTimer(true);
         }
 
-
-        // Program Logic
-        private void LoadAppSettingsProperties()
-        {
-            AutostartWithWindows = Properties.Settings.Default.AutostartWithWindows;
-            WindowsNotification = Properties.Settings.Default.WindowsNotification;
-            MinimizeToTray = Properties.Settings.Default.MinimizeToTray;
-            Theme = Properties.Settings.Default.Theme;
-            BoostModes = Properties.Settings.Default.BoostModes;
-            UpdateSpeed = Properties.Settings.Default.UpdateSpeed;
-
-            OnStartup = false;
-        }
-        public void SaveAppSettingsProperties()
-        {
-            Properties.Settings.Default.AutostartWithWindows = AutostartWithWindows;
-            Properties.Settings.Default.WindowsNotification = WindowsNotification;
-            Properties.Settings.Default.MinimizeToTray = MinimizeToTray;
-            Properties.Settings.Default.Theme = Theme;
-            Properties.Settings.Default.BoostModes = BoostModes;
-            Properties.Settings.Default.UpdateSpeed = UpdateSpeed;
-
-            Properties.Settings.Default.Save();
-        }
         public void RunTimer(bool restart = false)
         {
             if (restart == true)
@@ -187,17 +250,21 @@ namespace ProcessorBoostModeManager.Views
         }
         public void UpdateProgram()
         {
-            var (Database, HighestBoostMode) = ProcessMonitorService.GetDatabaseProcessesOC(DatabaseJSON.GetDatabaseProcesses().ToList());
+            var (Database, HighestBoostMode, NewRunningProgramsCount) = ProcessMonitorService.GetProcessedDatabase(DatabaseService.PocoDatabase);
             bool refreshNeeded = false;
+
+            // Initial Run to populate ProgramsInUI
             if (ProgramsInUI.Count == 0 && Database.Count != 0)
             {
                 foreach (var program in Database)
                 {
+                    program.Icon = IconHandler.ExtractIcon(program.Location);
                     ProgramsInUI.Add(program);
                 }
                 AdjustComboBoxBoostModes();
             }
 
+            // Check for changes in IsRunning / HighestValue
             if (ProgramsInUI.Count == Database.Count)
             {
                 for (int i = 0; i < Database.Count; i++)
@@ -214,10 +281,9 @@ namespace ProcessorBoostModeManager.Views
                     }
                 }
             }
+            // Add or Remove programs if needed
             else
             {
-                refreshNeeded = true;
-
                 string[] programsInUIArray = ProgramsInUI.Select(Program => Program.Name).ToArray();
                 string[] programsInDBArray = Database.Select(Program => Program.Name).ToArray();
 
@@ -227,7 +293,9 @@ namespace ProcessorBoostModeManager.Views
                     {
                         if (!programsInUIArray.Contains(program.Name))
                         {
+                            program.Icon = IconHandler.ExtractIcon(program.Location);
                             ProgramsInUI.Add(program);
+                            break;
                         }
                     }
                 }
@@ -242,34 +310,31 @@ namespace ProcessorBoostModeManager.Views
                         }
                     }
                 }
-
-                AdjustComboBoxBoostModes();
+                refreshNeeded = true;
             }
 
             if (refreshNeeded)
                 ProgramsView.Refresh();
 
             int currentBoostMode = RegistryManager.GetProcessorBoostMode();
-            CurrentBoostMode = (CPUBoostMode)currentBoostMode;
+            ApplyBoostModeChange(currentBoostMode, HighestBoostMode);
 
-            if (currentBoostMode != HighestBoostMode)
-            {
-                try
-                {
-                    RegistryManager.SetProcessorBoostMode(HighestBoostMode);
-                    currentBoostMode = HighestBoostMode;
-                    if (WindowsNotification == true)
-                        App.trayIcon.ShowBalloonTip(2500, "Status change:", $"Current mode set to: " +
-                            $"{(CPUBoostMode)HighestBoostMode}", ToolTipIcon.None);
-                }
-                catch (Exception e)
-                {
-                    throw new Exception($"Processor boost mode change failed! {e.Message}");
-                }
-            }
-
-            RunningProgramsCount = ProgramsInUI.Count(p => p.IsRunning);
+            if (CurrentBoostMode != (CPUBoostMode)HighestBoostMode)
+                CurrentBoostMode = (CPUBoostMode)HighestBoostMode;
+            if (RunningProgramsCount != NewRunningProgramsCount)
+                RunningProgramsCount = NewRunningProgramsCount;
         }
+        private void ApplyBoostModeChange(int currentBoostMode, int HighestBoostMode)
+        {
+            if (currentBoostMode == HighestBoostMode)
+                return;
+
+            RegistryManager.SetProcessorBoostMode(HighestBoostMode);
+            if (WindowsNotification == true)
+                App.trayIcon.ShowBalloonTip(2500, "Status change:", $"Current mode set to: " +
+                    $"{(CPUBoostMode)HighestBoostMode}", ToolTipIcon.None);
+        }
+
 
         // ComboBoxes
         private void AdjustComboBoxBoostModes()
@@ -315,8 +380,8 @@ namespace ProcessorBoostModeManager.Views
                 "EfficientAggressiveAtGuaranteed"   // 6
             };
 
+            // Find highest index / boost mode value in BoostModes
             int newHighestBoostMode = 0;
-
             foreach (var item in BoostModes.Split(','))
             {
                 int index = Array.IndexOf(validBoostModes, item);
@@ -327,23 +392,18 @@ namespace ProcessorBoostModeManager.Views
                 }
             }
 
-            bool needSaving = false;
+            // Apply new highest boost mode value
             foreach (var program in ProgramsInUI)
             {
                 if ((int)program.BoostMode > newHighestBoostMode)
                 {
                     program.BoostMode = (CPUBoostMode)newHighestBoostMode;
-                    needSaving = true;
                 }
-            }
-            if (needSaving)
-            {
-                DatabaseJSON.SaveDatabase(ProgramsInUI.ToList());
             }
         }
 
         // Buttons
-        public void AddProgram()
+        private void AddProgram()
         {
             AddButtonIsEnabled = false;
 
@@ -351,7 +411,7 @@ namespace ProcessorBoostModeManager.Views
             selection.Show();
             selection.Activate();
         }
-        public void AddProgramManually()
+        private void AddProgramManually()
         {
             Microsoft.Win32.OpenFileDialog openFileDialog = new()
             {
@@ -369,18 +429,26 @@ namespace ProcessorBoostModeManager.Views
                     Name = fileName,
                     Location = fileLocation
                 };
-                DatabaseJSON.AddProgramToDatabase(program);
+                DatabaseService.AddProgramToDatabase(program);
                 UpdateProgram();
 
                 StatusMessageService.Lower($"Program {program.Name} has been added to the Database!");
             }
         }
-        public void RemoveProgram(ProgramViewModel selectedProgram)
+        private void RemoveProgram()
         {
-            DatabaseJSON.RemoveProgramFromDatabase(selectedProgram.Model);
-            UpdateProgram();
+            if (SelectedProgram != null)
+            {
+                string programName = SelectedProgram.Name;
+                DatabaseService.RemoveProgramFromDatabase(SelectedProgram.Model);
+                UpdateProgram();
 
-            StatusMessageService.Lower($"Program {selectedProgram.Name} has been removed!");
+                StatusMessageService.Lower($"Program {programName} has been removed!");
+            }
+            else
+            {
+                StatusMessageService.Lower("Please select a program to remove!");
+            }
         }
 
         // Menu Items
@@ -414,15 +482,17 @@ namespace ProcessorBoostModeManager.Views
                 StatusMessageService.Upper($"Application will not notify changes with Windows Baloon Pop-up!");
             }
         }
-        public void ToggleTheme(string selectedTheme, Uri themeUri)
+        public void ToggleTheme(string selectedTheme)
         {
             Theme = selectedTheme;
+            ThemeService.SetMenuItemsTheme(selectedTheme);
+            Uri themeUri = new Uri($"Resources/Themes/{selectedTheme}.xaml", UriKind.Relative);
 
             ResourceDictionary newTheme = new ResourceDictionary() { Source = themeUri };
             App.Current.Resources.Clear();
             App.Current.Resources.MergedDictionaries.Add(newTheme);
         }
-        public void SelectBoostModes(string selectedBoostMode)
+        public void ToggleBoostMode(string selectedBoostMode)
         {
             string currentBoostModes = BoostModes;
             string boostMode = selectedBoostMode;
@@ -459,8 +529,35 @@ namespace ProcessorBoostModeManager.Views
                 }
             }
             BoostModes = currentBoostModes;
+        }
+        public void ToggleUpdateSpeed(int newUpdateSpeed)
+        {
+            UpdateSpeed = newUpdateSpeed;
+            UpdateSpeedService.SetMenuItemsUpdateSpeed(newUpdateSpeed);
+        }
+        public void ResetSavedSettings()
+        {
+            AppSettingService.ResetSettings();
+            AppSettingService.LoadSettings();
 
-            AdjustComboBoxBoostModes();
+            ThemeService.SetMenuItemsTheme(Theme);
+            BoostModeMenuItemService.SetMenuItemsSavedState(BoostModes);
+            UpdateSpeedService.SetMenuItemsUpdateSpeed(UpdateSpeed);
+        }
+        public void ClearDatabase()
+        {
+            DatabaseService.CreateDatabase();
+            UpdateProgram();
+        }
+        private void OpenFileLocation()
+        {
+            if (SelectedProgram != null)
+            {
+                string? programPath = SelectedProgram.Location;
+                FileExplorer.ShowFileInExplorer(programPath);
+                // Simpler but opens a new explorer.exe process every time it is called
+                // System.Diagnostics.Process.Start("explorer.exe", $"/select, \"{ programPath }\"");
+            }
         }
 
 
