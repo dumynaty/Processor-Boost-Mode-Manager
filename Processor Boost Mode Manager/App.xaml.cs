@@ -86,7 +86,7 @@ namespace ProcessorBoostModeManager
             base.OnStartup(e);
             InstanceCheck();
 
-            if (MainWindowInstance._mainViewModel.AutostartWithWindows == true)
+            if (MainWindowInstance._mainViewModel.SavedSettingsService.AutostartWithWindows == true)
                 MainWindowInstance.Hide();
             else
                 MainWindowInstance.Show();
@@ -97,7 +97,7 @@ namespace ProcessorBoostModeManager
             trayIcon?.Dispose();
 
             MainWindowInstance._mainViewModel.DatabaseService.SaveDatabase(MainWindowInstance._mainViewModel.ProgramsInUI.Select(p => p.Model).ToList());
-            MainWindowInstance._mainViewModel.AppSettingService.SaveSettings();
+            MainWindowInstance._mainViewModel.SavedSettingsService.SaveSettings();
             base.OnExit(e);
         }
     }

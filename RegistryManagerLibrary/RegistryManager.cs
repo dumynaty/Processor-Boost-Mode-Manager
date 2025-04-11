@@ -125,6 +125,27 @@ namespace RegistryManagerLibrary
             return false;
         }
 
+        public static void GetActivePowerScheme()
+        {
+            try
+            {
+                var activePowerScheme = RegistryLocalMachineGetValue(PowerSchemesPath, "ActivePowerScheme");
+                if (activePowerScheme != null)
+                {
+                    ActivePowerScheme = (string)activePowerScheme;
+                }
+
+                var activeOverlayAcPowerScheme = RegistryLocalMachineGetValue(PowerSchemesPath, "ActiveOverlayAcPowerScheme");
+                if (activeOverlayAcPowerScheme != null && !activeOverlayAcPowerScheme.Equals("00000000-0000-0000-0000-000000000000"))
+                {
+                    ActivePowerScheme = (string)activeOverlayAcPowerScheme;
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Couldn't get the active Power Scheme! {e.Message}");
+            }
+        }
         public static void ConfigureProcessorBoostModeForActivePowerScheme()
         {
             try
@@ -179,28 +200,8 @@ namespace RegistryManagerLibrary
             catch (Exception e)
             {
                 throw new Exception($"Error setting new processor boost mode! {e.Message}");
-            }
-        }
-
-        public static void GetActivePowerScheme()
-        {
-            try
-            {
-                var activePowerScheme = RegistryLocalMachineGetValue(PowerSchemesPath, "ActivePowerScheme");
-                if (activePowerScheme != null)
-                {
-                    ActivePowerScheme = (string)activePowerScheme;
-                }
-
-                var activeOverlayAcPowerScheme = RegistryLocalMachineGetValue(PowerSchemesPath, "ActiveOverlayAcPowerScheme");
-                if (activeOverlayAcPowerScheme != null && !activeOverlayAcPowerScheme.Equals("00000000-0000-0000-0000-000000000000"))
-                {
-                    ActivePowerScheme = (string)activeOverlayAcPowerScheme;
-                }
-            }
-            catch (Exception e)
-            {
-                throw new Exception($"Couldn't get the active Power Scheme! {e.Message}");
+                
+                // Add ConfigureProcessorBoostModeForActivePowerScheme() for that specific error.
             }
         }
     }

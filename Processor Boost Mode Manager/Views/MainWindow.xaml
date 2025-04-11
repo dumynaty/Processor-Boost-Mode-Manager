@@ -31,7 +31,7 @@
             <MenuItem Header="Options">
                 <MenuItem Header="Minimize to Tray"
                           IsCheckable="True"
-                          IsChecked="{Binding MinimizeToTray, Mode=TwoWay}">
+                          IsChecked="{Binding SavedSettingsService.MinimizeToTray, Mode=TwoWay}">
                 </MenuItem>
 
                 <MenuItem Header="Theme"
@@ -47,7 +47,7 @@
                     </MenuItem.ItemContainerStyle>
                 </MenuItem>
 
-                <MenuItem Header="Boost Modes Test"
+                <MenuItem Header="Boost Modes"
                           ItemsSource="{Binding BoostModeMenuItemService.BoostModeMenuItems}">
                     <MenuItem.ItemContainerStyle>
                         <Style TargetType="MenuItem">
@@ -81,7 +81,7 @@
             </MenuItem>
 
             <MenuItem Header="Help">
-                <MenuItem Header="App Info" Click="AppInfo_Click"/>
+                <MenuItem Header="App Info" Command="{Binding AppInfoCommand}"/>
                 <MenuItem Header="Reset Settings to Defaults" Command="{Binding ResetSettingsCommand}" Foreground="Red"/>
                 <MenuItem Header="Clear Database" Command="{Binding ClearDatabaseCommand}" Foreground="Red"/>
             </MenuItem>
@@ -102,7 +102,7 @@
                     Margin="0,10,0,10">
 
             <TextBlock Name="UpperMainInfo" 
-                       Text="{Binding StatusMessageUpper}"
+                       Text="{Binding StatusMessageService.StatusMessageUpper}"
                        TextWrapping="Wrap"
                        Height="16"
                        Margin="4,0,4,0">
@@ -121,13 +121,13 @@
                               HorizontalAlignment="Left"
                               Margin="10,10,0,0"
                               Grid.Row="0"
-                              IsChecked="{Binding AutostartWithWindows, Mode=TwoWay}"/>
+                              IsChecked="{Binding SavedSettingsService.AutostartWithWindows, Mode=TwoWay}"/>
                     <CheckBox Content="Windows Pop-up Notifications" 
                               Height="15" 
                               HorizontalAlignment="Left"
                               Margin="10,10,0,0"
                               Grid.Row="1"
-                              IsChecked="{Binding WindowsNotification, Mode=TwoWay}"/>
+                              IsChecked="{Binding SavedSettingsService.WindowsNotification, Mode=TwoWay}"/>
                 </Grid>
             </GroupBox>
 
@@ -157,11 +157,6 @@
                                 Width="80" Height="22"
                                 HorizontalAlignment="Left"
                                 Command="{Binding RemoveCommand}"/>
-                        <Button Content="Test"
-                                Margin="0,4,10,5"
-                                Width="50" Height="22"
-                                HorizontalAlignment="Right"
-                                Click="TestButton_Click"/>
                     </DockPanel>
 
                     <ListBox x:Name="ProcessListBox"
@@ -224,30 +219,20 @@
                                         </TextBlock.Style>
                                     </TextBlock>
 
-                                    <ComboBox x:Name="ComboBoxList"
+                                    <ComboBox ItemsSource="{Binding ComboBoxSelection.ComboBoxItems}"
                                               Width="100"
                                               Grid.Column="2" 
                                               VerticalAlignment="Center" 
                                               HorizontalAlignment="Right"
-                                              Height="NaN" 
                                               VerticalContentAlignment="Center"
+                                              DisplayMemberPath="Name"
                                               SelectedValue="{Binding BoostMode, Mode=TwoWay}"
-                                              SelectedValuePath="Content"
-                                              SelectionChanged="ComboBox_SelectionChanged">
-                                        <ComboBoxItem Content="Disabled"
-                                                      Visibility="{Binding Disabled, UpdateSourceTrigger=PropertyChanged}"/>
-                                        <ComboBoxItem Content="Enabled"
-                                                      Visibility="{Binding Enabled, UpdateSourceTrigger=PropertyChanged}"/>
-                                        <ComboBoxItem Content="Aggressive"
-                                                      Visibility="{Binding Aggressive, UpdateSourceTrigger=PropertyChanged}"/>
-                                        <ComboBoxItem Content="EfficientEnabled"
-                                                      Visibility="{Binding EfficientEnabled, UpdateSourceTrigger=PropertyChanged}"/>
-                                        <ComboBoxItem Content="EfficientAggressive"
-                                                      Visibility="{Binding EfficientAggressive, UpdateSourceTrigger=PropertyChanged}"/>
-                                        <ComboBoxItem Content="AggressiveAtGuaranteed"
-                                                      Visibility="{Binding AggressiveAtGuaranteed, UpdateSourceTrigger=PropertyChanged}"/>
-                                        <ComboBoxItem Content="EfficientAggressiveAtGuaranteed"
-                                                      Visibility="{Binding EfficientAggressiveAtGuaranteed, UpdateSourceTrigger=PropertyChanged}"/>
+                                              SelectedValuePath="Name">
+                                        <ComboBox.ItemContainerStyle>
+                                            <Style TargetType="ComboBoxItem">
+                                                <Setter Property="Visibility" Value="{Binding IsVisible}" />
+                                            </Style>
+                                        </ComboBox.ItemContainerStyle>
                                     </ComboBox>
                                 </Grid>
                             </DataTemplate>
@@ -258,7 +243,7 @@
             </GroupBox>
 
             <TextBlock Name="LowerMainInfo"
-                       Text="{Binding StatusMessageLower}"
+                       Text="{Binding StatusMessageService.StatusMessageLower}"
                        Height="16"
                        Margin="4,7.5,4,0"
                        TextWrapping="NoWrap"

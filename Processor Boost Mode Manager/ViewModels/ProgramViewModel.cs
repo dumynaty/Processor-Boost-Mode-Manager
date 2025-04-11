@@ -1,4 +1,5 @@
 ﻿using ProcessorBoostModeManager.Enums;
+using ProcessorBoostModeManager.Models;
 using ProcessorBoostModeManager.Models.Poco;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -39,21 +40,7 @@ namespace ProcessorBoostModeManager.ViewModels
             set { _highestValue = value; OnPropertyChanged(); }
         }
 
-        private Visibility disabled;
-        private Visibility enabled;
-        private Visibility aggressive;
-        private Visibility efficientEnabled;
-        private Visibility efficientAggressive;
-        private Visibility aggressiveAtGuaranteed;
-        private Visibility efficientAggressiveAtGuaranteed;
-        public Visibility Disabled { get => disabled; set { disabled = value; OnPropertyChanged(); } }
-        public Visibility Enabled { get => enabled; set { enabled = value; OnPropertyChanged(); } }
-        public Visibility Aggressive { get => aggressive; set { aggressive = value; OnPropertyChanged(); } }
-        public Visibility EfficientEnabled { get => efficientEnabled; set { efficientEnabled = value; OnPropertyChanged(); } }
-        public Visibility EfficientAggressive { get => efficientAggressive; set { efficientAggressive = value; OnPropertyChanged(); } }
-        public Visibility AggressiveAtGuaranteed { get => aggressiveAtGuaranteed; set { aggressiveAtGuaranteed = value; OnPropertyChanged(); } }
-        public Visibility EfficientAggressiveAtGuaranteed { get => efficientAggressiveAtGuaranteed; set { efficientAggressiveAtGuaranteed = value; OnPropertyChanged(); } }
-
+        public ComboBoxSelectionViewModel ComboBoxSelection { get; set; } = new();
         public BitmapSource? Icon { get; set; } = null;
 
 

@@ -1,8 +1,7 @@
 ﻿// NEED TO ADD
 //
 // Logging file
-// Database backup and recovery
-// Startup Arguments
+// Error Handling
 
 
 using System.Windows;
@@ -11,8 +10,6 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Runtime.Versioning;
 using ProcessorBoostModeManager.ViewModels;
-using ProcessorBoostModeManager.Views;
-using System.Diagnostics;
 using ComboBox = System.Windows.Controls.ComboBox;
 
 namespace ProcessorBoostModeManager
@@ -30,33 +27,10 @@ namespace ProcessorBoostModeManager
             App.MainWindowInstance = this;
         }
 
-        private void TestButton_Click(object sender, RoutedEventArgs e)
-        {
-            _mainViewModel.AppSettingService.ResetSettings();
-        }
-
         // Menu Items
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
             Close();
-        }
-        private void AppInfo_Click(object sender, RoutedEventArgs e)
-        {
-            const string readmeUrl = "https://github.com/dumynaty/Processor-Boost-Mode-Manager/blob/master/README.md";
-            try
-            {
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = readmeUrl,
-                    UseShellExecute = true
-                });
-            }
-            catch
-            {
-                System.Windows.MessageBox.Show("Visit github.com/dumynaty/Processor-Boost-Mode-Manager/" +
-                    " read the README.md file or report your issue.", "Error accessing website!"
-                    , MessageBoxButton.OK, MessageBoxImage.Error);
-            }
         }
 
         // ListBox
@@ -102,7 +76,7 @@ namespace ProcessorBoostModeManager
             var originalSource = e.OriginalSource as DependencyObject;
             while (originalSource != null)
             {
-                if (originalSource is ComboBox || ProcessListBox.SelectedItem is not ProgramViewModel selectedProcess)
+                if (originalSource is ComboBox || ProcessListBox.SelectedItem is not ProgramViewModel)
                 {
                     e.Handled = true;
                     return;
@@ -111,17 +85,10 @@ namespace ProcessorBoostModeManager
             }
         }
 
-        //ComboBoxes
-        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            _mainViewModel.DatabaseService.SaveDatabase(_mainViewModel.ProgramsInUI.Select(p => p.Model).ToList());
-            _mainViewModel.UpdateProgram();
-        }
-
         // Window State
         private void Window_StateChanged(object sender, EventArgs e)
         {
-            if (WindowState == WindowState.Minimized && _mainViewModel.MinimizeToTray == true)
+            if (WindowState == WindowState.Minimized && _mainViewModel.SavedSettingsService.MinimizeToTray == true)
             {
                 Hide();
             }

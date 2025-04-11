@@ -1,6 +1,5 @@
 ﻿using ProcessorBoostModeManager.Common;
 using ProcessorBoostModeManager.Models.Poco;
-using ProcessorBoostModeManager.Views;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -10,7 +9,7 @@ namespace ProcessorBoostModeManager.ViewModels
 {
     public class ProcessSelectionViewModel : INotifyPropertyChanged
     {
-        private MainViewModel _mainViewModel;
+        private MainViewModel _model;
         public ObservableCollection<ProgramViewModel> ProgramsInUI { get; set; }
 
         private ProgramViewModel? _selectedProcess = null;
@@ -26,7 +25,7 @@ namespace ProcessorBoostModeManager.ViewModels
         
         public ProcessSelectionViewModel(MainViewModel MainViewModel)
         {
-            _mainViewModel = MainViewModel;
+            _model = MainViewModel;
 
             ProgramsInUI = new ObservableCollection<ProgramViewModel>();
             LoadProcesses();
@@ -72,9 +71,9 @@ namespace ProcessorBoostModeManager.ViewModels
 
             try
             {
-                _mainViewModel.DatabaseService.AddProgramToDatabase(SelectedProcess.Model);
-                _mainViewModel.StatusMessageService.Lower($"Program {SelectedProcess.Name} has been added to the Database!");
-                _mainViewModel.UpdateProgram();
+                _model.DatabaseService.AddProgramToDatabase(SelectedProcess.Model);
+                _model.StatusMessageService.Lower($"Program {SelectedProcess.Name} has been added to the Database!");
+                _model.ProcessMonitorService.UpdateProgram();
 
                 return true;
             }

@@ -32,5 +32,17 @@ namespace ProcessorBoostModeManager.Common.MenuItemsServices
                 menuItem.IsChecked = BoostModesArray.Contains(menuItem.Name);
             }
         }
+
+        public void ToggleMenuItemState(string selectedBoostMode, bool IsChecked)
+        {
+            foreach (var menuItem in BoostModeMenuItems)
+            {
+                if (menuItem.Name == selectedBoostMode)
+                {
+                    menuItem.IsChecked = IsChecked;
+                    break;
+                }
+            }
+        }
     }
 }
