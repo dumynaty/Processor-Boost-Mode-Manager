@@ -214,12 +214,17 @@
                                                         <Setter Property="Foreground" Value="Blue" />
                                                         <Setter Property="FontWeight" Value="Bold"/>
                                                     </DataTrigger>
+                                                    <DataTrigger Binding="{Binding ComboBoxSelection.ComboBoxVisibility, Mode=TwoWay}" Value="Collapsed">
+                                                        <Setter Property="Foreground" Value="Red" />
+                                                        <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                                    </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </TextBlock.Style>
                                     </TextBlock>
 
                                     <ComboBox ItemsSource="{Binding ComboBoxSelection.ComboBoxItems}"
+                                              Visibility="{Binding ComboBoxSelection.ComboBoxVisibility}"
                                               Width="100"
                                               Grid.Column="2" 
                                               VerticalAlignment="Center" 

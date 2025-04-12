@@ -2,19 +2,18 @@
 //
 // Logging file
 // Error Handling
+// Themes
 
 
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Runtime.Versioning;
 using ProcessorBoostModeManager.ViewModels;
 using ComboBox = System.Windows.Controls.ComboBox;
 
 namespace ProcessorBoostModeManager
 {
-    [SupportedOSPlatform("windows")]
     public partial class MainWindow : Window
     {
         public MainViewModel _mainViewModel = new MainViewModel();
@@ -32,7 +31,6 @@ namespace ProcessorBoostModeManager
         }
 
         // ListBox
-        // !!! --- Implement this method in ProcessSelectionWindow and see if MouseBindings will work --- !!!
         private void ProcessListBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             // Run order: ComboBox check, Deselection.

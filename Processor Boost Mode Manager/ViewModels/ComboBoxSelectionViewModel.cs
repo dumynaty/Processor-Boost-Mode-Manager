@@ -7,7 +7,7 @@ namespace ProcessorBoostModeManager.ViewModels
     public class ComboBoxSelectionViewModel
     {
         public ObservableCollection<ComboBoxModel> ComboBoxItems { get; set; } = new ObservableCollection<ComboBoxModel>();
-
+        public Visibility ComboBoxVisibility { get; set; } = Visibility.Visible;
         public ComboBoxSelectionViewModel()
         {
             InitializeSelections();

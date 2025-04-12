@@ -1,6 +1,7 @@
 ﻿using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using System.Windows;
+using System.IO;
 
 namespace ProcessorBoostModeManager.Common
 {
@@ -10,7 +11,7 @@ namespace ProcessorBoostModeManager.Common
         {
             try
             {
-                using var extractedIcon = System.Drawing.Icon.ExtractAssociatedIcon(programLocation);
+                using var extractedIcon = Icon.ExtractAssociatedIcon(programLocation);
                 if (extractedIcon != null)
                 {
                     var icon = Imaging.CreateBitmapSourceFromHIcon(
@@ -24,7 +25,20 @@ namespace ProcessorBoostModeManager.Common
             {
                 throw new Exception($"Error getting image from process (system protected / path unknown) - {e.Message}");
             }
-            // !!! -- N2W -- !!!   -   Apply a standard unknown Icon
+            return null;
+        }
+
+        public static BitmapSource? ApplyUnknownIcon()
+        {
+            using var extractedIcon = Icon.ExtractAssociatedIcon("C:\\Windows\\HelpPane.exe");
+            if (extractedIcon != null)
+            {
+                var icon = Imaging.CreateBitmapSourceFromHIcon(
+                    extractedIcon.Handle,
+                    Int32Rect.Empty,
+                    BitmapSizeOptions.FromEmptyOptions());
+                return icon;
+            }
             return null;
         }
     }

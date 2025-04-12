@@ -4,7 +4,6 @@ using System.Windows;
 using System.Windows.Input;
 namespace ProcessorBoostModeManager
 {
-    [SupportedOSPlatform("windows")]
     public partial class ProcessSelectionWindow : Window
     {
         private MainViewModel _mainViewModel;
@@ -29,6 +28,11 @@ namespace ProcessorBoostModeManager
         private void Window_Closed(object sender, EventArgs e)
         {
             _mainViewModel.AddButtonIsEnabled = true;
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.OpenFileLocation();
         }
     }
 }

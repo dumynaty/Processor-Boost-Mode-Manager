@@ -15,6 +15,12 @@
                 ItemsSource="{Binding ProgramsInUI}"
                 SelectedItem="{Binding SelectedProcess}"
                 MouseDoubleClick="ProcessesListBox_MouseDoubleClick">
+        <ListBox.ContextMenu>
+            <ContextMenu>
+                <MenuItem Header="Open File Location"
+                          Click="MenuItem_Click"/>
+            </ContextMenu>
+        </ListBox.ContextMenu>
         <ListBox.ItemTemplate>
             <DataTemplate>
                 <Grid Margin="0" HorizontalAlignment="Stretch">

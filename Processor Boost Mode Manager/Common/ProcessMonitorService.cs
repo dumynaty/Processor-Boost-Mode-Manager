@@ -71,8 +71,6 @@ namespace ProcessorBoostModeManager.Common
             var (Database, NewHighestBoostMode, NewRunningProgramsCount) = GetProcessedDatabase(_model.DatabaseService.PocoDatabase);
             bool RefreshUI = false;
 
-            
-
             if (_model.ProgramsInUI.Count == 0)
             {
                 // Do nothing if Database is empty
@@ -86,6 +84,11 @@ namespace ProcessorBoostModeManager.Common
                 foreach (var program in Database)
                 {
                     program.Icon = IconHandler.ExtractIcon(program.Location);
+                    if (program.Icon == null)
+                    {
+                        program.Icon = IconHandler.ApplyUnknownIcon();
+                        program.ComboBoxSelection.ComboBoxVisibility = System.Windows.Visibility.Collapsed;
+                    }
                     _model.ProgramsInUI.Add(program);
                 }
                 _model.AdjustComboBoxBoostModes();
@@ -125,6 +128,12 @@ namespace ProcessorBoostModeManager.Common
                         if (!programsInUIArray.Contains(program.Name))
                         {
                             program.Icon = IconHandler.ExtractIcon(program.Location);
+                            if (program.Icon == null)
+                            {
+                                program.Icon = IconHandler.ApplyUnknownIcon();
+                                program.ComboBoxSelection.ComboBoxVisibility = System.Windows.Visibility.Collapsed;
+                            }
+
                             _model.ProgramsInUI.Add(program);
                             _model.AdjustComboBoxBoostModes();
                             break;
@@ -168,7 +177,7 @@ namespace ProcessorBoostModeManager.Common
         }
         private List<string> GetWindowsProcesses()
         {
-            return Process.GetProcesses().Distinct().Select(p => p.ProcessName).ToList();
+            return Process.GetProcesses().Select(p => p.ProcessName).Distinct().ToList();
         }
     }
 }

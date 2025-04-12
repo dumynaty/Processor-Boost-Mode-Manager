@@ -35,7 +35,7 @@ namespace ProcessorBoostModeManager.ViewModels
             ToggleUpdateSpeed(newUpdateSpeed);
             ProcessMonitorService.RunTimer(true);
         });
-        public RelayCommand RefreshCommand => new RelayCommand(execute => ProcessMonitorService.UpdateProgram());
+        public RelayCommand RefreshCommand => new RelayCommand(execute => { ProgramsInUI.Clear(); ProcessMonitorService.UpdateProgram(); });
         public RelayCommand AppInfoCommand => new RelayCommand(execute => AccessGitHubRepo());
         public RelayCommand ResetSettingsCommand => new RelayCommand(execute => ResetSavedSettings());
         public RelayCommand ClearDatabaseCommand => new RelayCommand(execute => ClearDatabase());
@@ -136,6 +136,7 @@ namespace ProcessorBoostModeManager.ViewModels
             StartProgram();
         }
 
+        // Initialization of program logic
         private void StartProgram()
         {
             ProcessMonitorService.RunTimer(true);
@@ -254,6 +255,8 @@ namespace ProcessorBoostModeManager.ViewModels
             if (SelectedProgram != null)
             {
                 string? programPath = SelectedProgram.Location;
+                if (!File.Exists(programPath))
+                    System.Windows.MessageBox.Show($"Check program location: {SelectedProgram.Location}", "Program not found!", MessageBoxButton.OK, MessageBoxImage.Error);
                 FileExplorer.ShowFileInExplorer(programPath);
                 // Simpler but opens a new explorer.exe process every time it is called
                 // System.Diagnostics.Process.Start("explorer.exe", $"/select, \"{ programPath }\"");
