@@ -230,7 +230,7 @@
                                               SelectedValuePath="Name">
                                         <ComboBox.ItemContainerStyle>
                                             <Style TargetType="ComboBoxItem">
-                                                <Setter Property="Visibility" Value="{Binding IsVisible}" />
+                                                <Setter Property="Visibility" Value="{Binding IsVisible}"/>
                                             </Style>
                                         </ComboBox.ItemContainerStyle>
                                     </ComboBox>

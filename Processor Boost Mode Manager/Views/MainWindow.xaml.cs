@@ -23,8 +23,6 @@ namespace ProcessorBoostModeManager
         {
             InitializeComponent();
             DataContext = _mainViewModel;
-
-            App.MainWindowInstance = this;
         }
 
         // Menu Items

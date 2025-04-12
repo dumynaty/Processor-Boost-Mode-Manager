@@ -1,17 +1,14 @@
 ﻿using ProcessorBoostModeManager.Common.shell32;
 using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.Versioning;
 using System.Windows;
 using MessageBox = System.Windows.MessageBox;
 
 namespace ProcessorBoostModeManager
 {
-    [SupportedOSPlatform("windows")]
     public partial class App : System.Windows.Application
     {
-        public static MainWindow MainWindowInstance { get; set; } = new();
-        public static ProcessSelectionWindow? ProcessSelectionInstance { get; set; }
+        readonly new MainWindow MainWindow = new();
         public readonly static NotifyIcon trayIcon = new();
 
         private void TrayIconInitialization()
@@ -19,6 +16,7 @@ namespace ProcessorBoostModeManager
             var appIcon = Assembly.GetExecutingAssembly().GetManifestResourceStream("ProcessorBoostModeManager.Resources.Icons.Processor Boost Mode Manager.ico");
             if (appIcon != null)
                 trayIcon.Icon = new Icon(appIcon);
+
             trayIcon.ContextMenuStrip = new ContextMenuStrip();
             var openIcon = Assembly.GetExecutingAssembly().GetManifestResourceStream("ProcessorBoostModeManager.Resources.Icons.Processor Boost Mode Manager.ico");
             if (openIcon != null)
@@ -34,7 +32,7 @@ namespace ProcessorBoostModeManager
             trayIcon.Visible = true;
             trayIcon.MouseClick += TrayIcon_MouseClick;
         }
-        private static void InstanceCheck()
+        private void InstanceCheck()
         {
             string currentProcessName = Process.GetCurrentProcess().ProcessName;
             int matchingProcesses = Process.GetProcesses().Count(p => p.ProcessName.Equals(currentProcessName, StringComparison.OrdinalIgnoreCase));
@@ -50,7 +48,13 @@ namespace ProcessorBoostModeManager
                 App.Current.Shutdown();
             }
         }
-
+        private void ShowOnStartup()
+        {
+            if (MainWindow._mainViewModel.SavedSettingsService.AutostartWithWindows == false)
+                MainWindow.Show();
+            else
+                MainWindow.Hide();
+        }
         private void TrayIcon_MouseClick(object? sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
@@ -83,21 +87,18 @@ namespace ProcessorBoostModeManager
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            base.OnStartup(e);
             InstanceCheck();
-
-            if (MainWindowInstance._mainViewModel.SavedSettingsService.AutostartWithWindows == true)
-                MainWindowInstance.Hide();
-            else
-                MainWindowInstance.Show();
+            ShowOnStartup();
             TrayIconInitialization();
+
+            base.OnStartup(e);
         }
         protected override void OnExit(ExitEventArgs e)
         {
             trayIcon?.Dispose();
 
-            MainWindowInstance._mainViewModel.DatabaseService.SaveDatabase(MainWindowInstance._mainViewModel.ProgramsInUI.Select(p => p.Model).ToList());
-            MainWindowInstance._mainViewModel.SavedSettingsService.SaveSettings();
+            MainWindow._mainViewModel.DatabaseService.SaveDatabase(MainWindow._mainViewModel.ProgramsInUI.Select(p => p.Model).ToList());
+            MainWindow._mainViewModel.SavedSettingsService.SaveSettings();
             base.OnExit(e);
         }
     }
