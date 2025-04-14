@@ -1,8 +1,7 @@
 ﻿// NEED TO ADD
 //
 // Logging file
-// Error Handling
-// Themes
+// Error Handlings
 
 
 using System.Windows;

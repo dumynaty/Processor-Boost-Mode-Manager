@@ -18,11 +18,6 @@ namespace ProcessorBoostModeManager.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        public RelayCommand ToggleThemeCommand => new RelayCommand(param =>
-        {
-            string theme = param as string ?? "Classic";
-            ToggleTheme(theme);
-        });
         public RelayCommand ToggleBoostModeCommand => new RelayCommand(param =>
         {
             string boostMode = (string)param;
@@ -55,7 +50,6 @@ namespace ProcessorBoostModeManager.ViewModels
         public DatabaseService DatabaseService { get; private set; }
         public ProcessMonitorService ProcessMonitorService { get; private set; }
         public StatusMessageService StatusMessageService { get; set; } = new();
-        public ThemeService ThemeService { get; set; }
         public BoostModeService BoostModeMenuItemService { get; set; }
         public UpdateSpeedService UpdateSpeedService { get; set; }
         
@@ -115,7 +109,6 @@ namespace ProcessorBoostModeManager.ViewModels
             DatabaseService = new DatabaseService();
             ProcessMonitorService = new ProcessMonitorService(this);
             StatusMessageService = new StatusMessageService();
-            ThemeService = new ThemeService();
             BoostModeMenuItemService = new BoostModeService();
             UpdateSpeedService = new UpdateSpeedService();
 
@@ -127,7 +120,6 @@ namespace ProcessorBoostModeManager.ViewModels
                 ProgramsView.Refresh();
             }
             
-            ThemeService.SetMenuItemsTheme(SavedSettingsService.Theme);
             BoostModeMenuItemService.SetMenuItemsSavedState(SavedSettingsService.BoostModes);
             UpdateSpeedService.SetMenuItemsUpdateSpeed(SavedSettingsService.UpdateSpeed);
             RegistryManager.GetActivePowerScheme();
@@ -154,16 +146,6 @@ namespace ProcessorBoostModeManager.ViewModels
         }
 
         // Menu Items
-        public void ToggleTheme(string selectedTheme)
-        {
-            SavedSettingsService.Theme = selectedTheme;
-            ThemeService.SetMenuItemsTheme(selectedTheme);
-            Uri themeUri = new Uri($"Resources/Themes/{selectedTheme}.xaml", UriKind.Relative);
-
-            ResourceDictionary newTheme = new ResourceDictionary() { Source = themeUri };
-            App.Current.Resources.Clear();
-            App.Current.Resources.MergedDictionaries.Add(newTheme);
-        }
         public void ToggleBoostMode(string selectedBoostMode)
         {
             string currentBoostModes = SavedSettingsService.BoostModes;
@@ -233,7 +215,6 @@ namespace ProcessorBoostModeManager.ViewModels
             SavedSettingsService.ResetSettings();
             SavedSettingsService.LoadSettings();
 
-            ThemeService.SetMenuItemsTheme(SavedSettingsService.Theme);
             BoostModeMenuItemService.SetMenuItemsSavedState(SavedSettingsService.BoostModes);
             UpdateSpeedService.SetMenuItemsUpdateSpeed(SavedSettingsService.UpdateSpeed);
 

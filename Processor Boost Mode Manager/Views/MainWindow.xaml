@@ -34,19 +34,6 @@
                           IsChecked="{Binding SavedSettingsService.MinimizeToTray, Mode=TwoWay}">
                 </MenuItem>
 
-                <MenuItem Header="Theme"
-                          ItemsSource="{Binding ThemeService.ThemeMenuItems}">
-                    <MenuItem.ItemContainerStyle>
-                        <Style TargetType="MenuItem">
-                            <Setter Property="Header" Value="{Binding Name}"/>
-                            <Setter Property="IsCheckable" Value="True"/>
-                            <Setter Property="IsChecked" Value="{Binding IsChecked}"/>
-                            <Setter Property="Command" Value="{Binding DataContext.ToggleThemeCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                            <Setter Property="CommandParameter" Value="{Binding Name}"/>
-                        </Style>
-                    </MenuItem.ItemContainerStyle>
-                </MenuItem>
-
                 <MenuItem Header="Boost Modes"
                           ItemsSource="{Binding BoostModeMenuItemService.BoostModeMenuItems}">
                     <MenuItem.ItemContainerStyle>
