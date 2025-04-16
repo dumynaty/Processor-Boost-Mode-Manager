@@ -18,6 +18,7 @@ namespace ProcessorBoostModeManager.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {
+        public RelayCommand ExitCommand => new RelayCommand(execute => { App.Current.Shutdown(); });
         public RelayCommand ToggleBoostModeCommand => new RelayCommand(param =>
         {
             string boostMode = (string)param;
@@ -333,35 +334,36 @@ namespace ProcessorBoostModeManager.ViewModels
                 program.ComboBoxSelection.SetSavedComboBoxItems(SavedSettingsService.BoostModes);
             }
 
-            string[] validBoostModes = new string[]
-            {
-                "Disabled",                         // 0
-                "Enabled",                          // 1
-                "Aggressive",                       // 2
-                "EfficientEnabled",                 // 3
-                "EfficientAggressive",              // 4
-                "AggressiveAtGuaranteed",           // 5
-                "EfficientAggressiveAtGuaranteed"   // 6
-            };
+            string[] BoostModeValues = Enum.GetNames(typeof(CPUBoostMode));
 
-            // Find highest index / boost mode value in BoostModes
+            // Find highest and lowest index / boost mode value in BoostModes
             int newHighestBoostMode = 0;
+            int newLowestBoostMode = 6;
             foreach (var item in SavedSettingsService.BoostModes.Split(','))
             {
-                int index = Array.IndexOf(validBoostModes, item);
+                int index = Array.IndexOf(BoostModeValues, item);
 
                 if (index > newHighestBoostMode)
                 {
                     newHighestBoostMode = index;
                 }
+                if (index < newLowestBoostMode)
+                {
+                    newLowestBoostMode = index;
+                }
+
             }
 
-            // Apply new highest boost mode value
+            // Apply new highest or lowest boost mode value
             foreach (var program in ProgramsInUI)
             {
                 if ((int)program.BoostMode > newHighestBoostMode)
                 {
                     program.BoostMode = (CPUBoostMode)newHighestBoostMode;
+                }
+                else if ((int)program.BoostMode < newLowestBoostMode)
+                {
+                    program.BoostMode = (CPUBoostMode)newLowestBoostMode;
                 }
             }
         }

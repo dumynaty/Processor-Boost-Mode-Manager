@@ -21,12 +21,8 @@ namespace ProcessorBoostModeManager
         {
             InitializeComponent();
             DataContext = _mainViewModel;
-        }
 
-        // Menu Items
-        private void Exit_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
+            App.MainWindow = this;
         }
 
         // ListBox

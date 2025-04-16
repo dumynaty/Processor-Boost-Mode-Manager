@@ -1,5 +1,4 @@
 ﻿using ProcessorBoostModeManager.ViewModels;
-using System.Runtime.Versioning;
 using System.Windows;
 using System.Windows.Input;
 namespace ProcessorBoostModeManager
@@ -24,15 +23,14 @@ namespace ProcessorBoostModeManager
             if (_viewModel.AddProgramToDatabase() == true)
                 Close();
         }
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.OpenFileLocation();
+        }
 
         private void Window_Closed(object sender, EventArgs e)
         {
             _mainViewModel.AddButtonIsEnabled = true;
-        }
-
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            _viewModel.OpenFileLocation();
         }
     }
 }

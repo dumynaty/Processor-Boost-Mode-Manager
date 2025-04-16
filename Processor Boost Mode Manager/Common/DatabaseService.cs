@@ -1,7 +1,5 @@
 ﻿using ProcessorBoostModeManager.Models.Poco;
-using ProcessorBoostModeManager.ViewModels;
 using System.IO;
-using System.Linq.Expressions;
 using System.Text.Json;
 using System.Windows;
 

@@ -1,9 +1,7 @@
 ﻿using ProcessorBoostModeManager.Enums;
-using ProcessorBoostModeManager.Models;
 using ProcessorBoostModeManager.Models.Poco;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows;
 using System.Windows.Media.Imaging;
 
 namespace ProcessorBoostModeManager.ViewModels

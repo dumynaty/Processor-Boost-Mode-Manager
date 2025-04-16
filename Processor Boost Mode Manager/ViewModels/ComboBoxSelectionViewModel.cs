@@ -1,4 +1,5 @@
-﻿using ProcessorBoostModeManager.Models;
+﻿using ProcessorBoostModeManager.Enums;
+using ProcessorBoostModeManager.Models;
 using System.Collections.ObjectModel;
 using System.Windows;
 
@@ -6,6 +7,7 @@ namespace ProcessorBoostModeManager.ViewModels
 {
     public class ComboBoxSelectionViewModel
     {
+        private readonly string[] BoostModeValues = Enum.GetNames(typeof(CPUBoostMode));
         public ObservableCollection<ComboBoxModel> ComboBoxItems { get; set; } = new ObservableCollection<ComboBoxModel>();
         public Visibility ComboBoxVisibility { get; set; } = Visibility.Visible;
         public ComboBoxSelectionViewModel()
@@ -15,16 +17,7 @@ namespace ProcessorBoostModeManager.ViewModels
 
         private void InitializeSelections()
         {
-            string[] Selections = { 
-                "Disabled",
-                "Enabled",
-                "Aggressive",
-                "EfficientEnabled",
-                "EfficientAggressive",
-                "AggressiveOnGuaranteed",
-                "EfficientAggressiveOnGuaranteed"};
-
-            foreach (var selection in Selections)
+            foreach (var selection in BoostModeValues)
             {
                 ComboBoxModel model = new ComboBoxModel();
                 model.Name = selection;

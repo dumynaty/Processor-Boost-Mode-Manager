@@ -184,7 +184,7 @@ namespace RegistryManagerLibrary
         }
         public static void SetProcessorBoostMode(int boostMode)
         {
-            int[] boostModeValues = [0,1,2,3,4,5,6];
+            int[] boostModeValues = { 0, 1, 2, 3, 4, 5, 6 };
             try
             {
                 if (!string.IsNullOrEmpty(ActivePowerScheme) && boostModeValues.Contains(boostMode))

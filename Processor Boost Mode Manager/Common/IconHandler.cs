@@ -1,7 +1,6 @@
 ﻿using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using System.Windows;
-using System.IO;
 
 namespace ProcessorBoostModeManager.Common
 {
@@ -21,9 +20,9 @@ namespace ProcessorBoostModeManager.Common
                     return icon;
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                throw new Exception($"Error getting image from process (system protected / path unknown) - {e.Message}");
+                //throw new Exception($"Error getting image from process (system protected / path unknown) - {e.Message}");
             }
             return null;
         }

@@ -8,9 +8,31 @@ namespace ProcessorBoostModeManager
 {
     public partial class App : System.Windows.Application
     {
-        readonly new MainWindow MainWindow = new();
-        public readonly static NotifyIcon trayIcon = new();
+        public static new MainWindow MainWindow = new();
+        public static NotifyIcon trayIcon = new();
 
+        private void InstanceCheck()
+        {
+            string currentProcessName = Process.GetCurrentProcess().ProcessName;
+            int matchingProcesses = Process.GetProcesses().Count(p => p.ProcessName.Equals(currentProcessName, StringComparison.OrdinalIgnoreCase));
+
+            if (matchingProcesses > 1)
+            {
+                MessageBox.Show("Only one instance of Processor Boost Mode Manager can run at a time!",
+                                "Processor Boost Mode Manager",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Information);
+
+                App.Current.Shutdown();
+            }
+        }
+        private void ShowOnStartup()
+        {
+            if (MainWindow._mainViewModel.SavedSettingsService.AutostartWithWindows == false)
+                MainWindow.Show();
+            else
+                MainWindow.Hide();
+        }
         private void TrayIconInitialization()
         {
             var appIcon = Assembly.GetExecutingAssembly().GetManifestResourceStream("ProcessorBoostModeManager.Resources.Icons.Processor Boost Mode Manager.ico");
@@ -32,29 +54,6 @@ namespace ProcessorBoostModeManager
             trayIcon.Visible = true;
             trayIcon.MouseClick += TrayIcon_MouseClick;
         }
-        private void InstanceCheck()
-        {
-            string currentProcessName = Process.GetCurrentProcess().ProcessName;
-            int matchingProcesses = Process.GetProcesses().Count(p => p.ProcessName.Equals(currentProcessName, StringComparison.OrdinalIgnoreCase));
-
-            if (matchingProcesses > 1)
-            {
-                MessageBox.Show("Only one instance of Processor Boost Mode Manager can run at a time!",
-                                "Processor Boost Mode Manager",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Information);
-
-                // This doesn't shutdown
-                App.Current.Shutdown();
-            }
-        }
-        private void ShowOnStartup()
-        {
-            if (MainWindow._mainViewModel.SavedSettingsService.AutostartWithWindows == false)
-                MainWindow.Show();
-            else
-                MainWindow.Hide();
-        }
         private void TrayIcon_MouseClick(object? sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
@@ -65,7 +64,7 @@ namespace ProcessorBoostModeManager
             }
             if (e.Button == MouseButtons.Middle)
             {
-                App.Current?.Shutdown();
+                App.Current.Shutdown();
             }
         }
         private void OnOpenIconClicked(object? sender, EventArgs e)
@@ -99,6 +98,7 @@ namespace ProcessorBoostModeManager
 
             MainWindow._mainViewModel.DatabaseService.SaveDatabase(MainWindow._mainViewModel.ProgramsInUI.Select(p => p.Model).ToList());
             MainWindow._mainViewModel.SavedSettingsService.SaveSettings();
+
             base.OnExit(e);
         }
     }

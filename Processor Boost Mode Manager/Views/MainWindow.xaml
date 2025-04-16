@@ -25,7 +25,7 @@
               Background="White">
 
             <MenuItem Header="File">
-                <MenuItem Header="Exit" Click="Exit_Click"/>
+                <MenuItem Header="Exit" Command="{Binding ExitCommand}"/>
             </MenuItem>
 
             <MenuItem Header="Options">
